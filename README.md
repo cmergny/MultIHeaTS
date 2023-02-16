@@ -9,6 +9,7 @@ It is an implicit numerical model that simulates and predicts the surface temper
 [Getting started](#getting-started) •
 [Installation](#installation) •
 [How to Use](#how-to-use) •
+[Configuration](#configuration) •
 [License](#license)
 </div>
 
