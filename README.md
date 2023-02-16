@@ -17,7 +17,7 @@ It is an implicit numerical model that simulates and predicts the surface temper
 # Getting Started
 
 <div align="center">
- ![Temperature Profile](examples/temp_evo.gif)
+ <img src="examples/temp_evo.gif" width="400" />
 </div>
 
 ## Dependancies
