@@ -45,7 +45,7 @@ def plot_temp(spaces, temps, it, interf=0):
     plt.title("Bilayer temperature profile snapshot")
     plt.legend()
     # plt.show()
-    plt.savefig("../../examples/temp_bilayer.png", savefig_kwargs={"transparent": True})
+    plt.savefig("../../examples/temp_bilayer.png")
 
 
 def animate_function(spaces, temps, interf=0, step=1, frames=None, save=False):
@@ -70,5 +70,9 @@ def animate_function(spaces, temps, interf=0, step=1, frames=None, save=False):
 
     if save:
         progress_callback = lambda i, n: print(f"Saving frame {i} of {n}")
-        anim.save("temp_evo.gif", progress_callback=progress_callback)
+        anim.save(
+            "../../examples/temp_evo.gif",
+            savefig_kwargs={"transparent": True},
+            progress_callback=progress_callback,
+        )
     return anim

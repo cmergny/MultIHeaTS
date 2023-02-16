@@ -64,4 +64,4 @@ if __name__ == "__main__":
     anim = vis.animate_function(
         prof.spaces, temps, interf=prof.interf, step=5, frames=350, save=True
     )
-    plt.show()
+    # plt.show()

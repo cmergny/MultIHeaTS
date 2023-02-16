@@ -10,15 +10,15 @@ It is an implicit numerical model that simulates and predicts the surface temper
 [Installation](#installation) •
 [How to Use](#how-to-use) •
 [License](#license)
-
 </div>
 
 
 
 # Getting Started
 
- ![Image description which will be the alt tag](examples/temp_evo.gif)
-
+<div align="center">
+ ![Temperature Profile](examples/temp_evo.gif)
+</div>
 
 ## Dependancies
 
