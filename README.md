@@ -17,13 +17,10 @@ It is an implicit numerical model that simulates and predicts the surface temper
 
 # Getting Started
 
-<div align="center">
 
-#![](https://gitlab.dsi.universite-paris-saclay.fr/cyril.mergny/multiheats/-/blob/master/examples/temp_evo.gif)
+<img src="https://github.com/anfederico/clairvoyant/blob/master/media/Learning.gif" width=40%>
 
-![grab-landing-page](https://github.com/winnie1312/grab/blob/master/grab-landingpage-winnie.gif)
 
-</div>
 
 ## Dependancies
 
