@@ -17,12 +17,7 @@ It is an implicit numerical model that simulates and predicts the surface temper
 
 # Getting Started
 
-<div class="video-fallback">
-  See the video: <a href="https://www.youtube.com/watch?v=MqL6BMOySIQ">Video title</a>.
-</div>
-<figure class="video-container">
-  <iframe src="https://www.youtube-nocookie.com/embed/MqL6BMOySIQ" frameborder="0" allowfullscreen> </iframe>
-</figure>
+ ![Image description which will be the alt tag](https://gitlab.dsi.universite-paris-saclay.fr/cyril.mergny/multiheats/-/blob/master/examples/temp_bilayer.png)
 
 
 ## Dependancies
