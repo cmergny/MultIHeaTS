@@ -44,6 +44,17 @@ Then install the required conda environment:
 ```bash
 conda env create -f environment.yml
 ```
+# Contributing
+
+Contributions are welcome:
+
+- Feel free to open an issue for feedback about usability.
+- You may fork the project as you wish as long as you cite the original in your research.
+- Pull request may be accepted if new features are in the scope of the MultIHeaTS core.
+
+Please keep pull requests focused and don't change multiple things at the same
+time.
+
 
 
 # License
