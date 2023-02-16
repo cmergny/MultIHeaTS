@@ -109,7 +109,7 @@ def beautiful_animate_function(
         progress_callback = lambda i, n: print(f"Saving frame {i} of {n}")
         anim.save(
             "../../examples/temp_evo.gif",
-            dpi=150,
+            dpi=100,
             savefig_kwargs={"transparent": True, "facecolor": "#333238"},
             progress_callback=progress_callback,
         )
