@@ -101,6 +101,7 @@ def beautiful_animate_function(
     ax.yaxis.label.set_color(color)
     ax.tick_params(axis="x", colors=color)
     ax.tick_params(axis="y", colors=color)
+    # ax.set_facecolor("#2e3440")
 
     anim = FuncAnimation(fig, animate, frames=frames, interval=1, repeat=False)
     plt.title("Temperature Evolution", color=color)
@@ -109,8 +110,8 @@ def beautiful_animate_function(
         progress_callback = lambda i, n: print(f"Saving frame {i} of {n}")
         anim.save(
             "../../examples/temp_evo.gif",
-            dpi=200,
-            savefig_kwargs={"transparent": True},
+            dpi=300,
+            savefig_kwargs={"transparent": True, "facecolor": "#2e3440"},
             progress_callback=progress_callback,
         )
     return anim
