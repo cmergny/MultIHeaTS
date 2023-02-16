@@ -70,8 +70,46 @@ def animate_function(spaces, temps, interf=0, step=1, frames=None, save=False):
 
     if save:
         progress_callback = lambda i, n: print(f"Saving frame {i} of {n}")
+        anim.save("../../examples/temp_evo.gif", progress_callback=progress_callback)
+    return anim
+
+
+def beautiful_animate_function(
+    spaces, temps, interf=0, step=1, frames=None, save=False
+):
+    """Plot an animation of the temperature with time"""
+    frames = temps.shape[0] // step if frames is None else frames
+    fig, ax = plt.subplots()
+    (line,) = ax.plot([], color="#d08770")
+    ax.axvline(x=interf, alpha=0.3, linestyle="--", color="#88c0d0")
+
+    def animate(it):
+        line.set_data((spaces, temps[it * step]))
+        # ax.set_title(f"{it}")
+        return line
+
+    ax.set_ylabel("Temperature (K)")
+    ax.set_xlabel("Depth (m)")
+    ax.set_xlim(spaces.min(), spaces.max())
+    ax.set_ylim(temps.min(), temps.max())
+    ax.set_xscale("symlog")
+
+    color = "#eceff4"
+    ax.spines[["right", "top"]].set_visible(False)
+    ax.spines[["left", "bottom"]].set_color(color)
+    ax.xaxis.label.set_color(color)
+    ax.yaxis.label.set_color(color)
+    ax.tick_params(axis="x", colors=color)
+    ax.tick_params(axis="y", colors=color)
+
+    anim = FuncAnimation(fig, animate, frames=frames, interval=1, repeat=False)
+    plt.title("Temperature Evolution", color=color)
+
+    if save:
+        progress_callback = lambda i, n: print(f"Saving frame {i} of {n}")
         anim.save(
             "../../examples/temp_evo.gif",
+            dpi=200,
             savefig_kwargs={"transparent": True},
             progress_callback=progress_callback,
         )
