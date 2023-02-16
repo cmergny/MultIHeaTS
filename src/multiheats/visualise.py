@@ -81,7 +81,6 @@ def beautiful_animate_function(
     frames = temps.shape[0] // step if frames is None else frames
     fig, ax = plt.subplots(figsize=(5, 4.5))
     (line,) = ax.plot([], color="#d08770")
-    ax.axvline(x=interf, alpha=0.3, linestyle="--", color="#88c0d0")
 
     def animate(it):
         line.set_data((spaces, temps[it * step]))
@@ -110,7 +109,7 @@ def beautiful_animate_function(
         progress_callback = lambda i, n: print(f"Saving frame {i} of {n}")
         anim.save(
             "../../examples/temp_evo.gif",
-            dpi=100,
+            dpi=200,
             savefig_kwargs={"transparent": True, "facecolor": "#333238"},
             progress_callback=progress_callback,
         )
