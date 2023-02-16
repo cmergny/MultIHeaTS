@@ -67,6 +67,7 @@ class Profile:
         self.cond = bilayer(self.spaces, cond_top, cond_bot, interface, transition)
         self.rho = bilayer(self.spaces, rho_top, rho_bot, interface, transition)
         self.cp = bilayer(self.spaces, cp_top, cp_bot, interface, transition)
+        self.interf = interface
 
     def thermal_skin(self, cond, rho, cp):
         """delta = (2*alpha/omega)**1/2"""

@@ -34,12 +34,14 @@ def animate_function(spaces, temps, step=1, save=False):
 
     def animate(it):
         line.set_data((spaces, temps[it * step]))
-        ax.set_title(f"{it}")
+        # ax.set_title(f"{it}")
         return line
 
     ax.set_ylabel("Temperature (K)")
+    ax.set_xlabel("Depth (m)")
     ax.set_xlim(spaces.min(), spaces.max())
     ax.set_ylim(temps.min(), temps.max())
     ax.set_xscale("symlog")
     anim = FuncAnimation(fig, animate, frames=temps.shape[0], interval=1, repeat=True)
+    plt.title("Temperature Evolution")
     return anim
