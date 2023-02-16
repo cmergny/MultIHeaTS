@@ -45,7 +45,7 @@ def plot_temp(spaces, temps, it, interf=0):
     plt.title("Bilayer temperature profile snapshot")
     plt.legend()
     # plt.show()
-    plt.savefig("../../examples/temp_bilayer.png")
+    plt.savefig("../../examples/temp_bilayer.png", savefig_kwargs={"transparent": True})
 
 
 def animate_function(spaces, temps, interf=0, step=1, frames=None, save=False):
