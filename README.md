@@ -17,9 +17,12 @@ It is an implicit numerical model that simulates and predicts the surface temper
 
 # Getting Started
 
-
-<img src="https://github.com/anfederico/clairvoyant/blob/master/media/Learning.gif" width=40%>
-
+<div class="video-fallback">
+  See the video: <a href="https://www.youtube.com/watch?v=MqL6BMOySIQ">Video title</a>.
+</div>
+<figure class="video-container">
+  <iframe src="https://www.youtube-nocookie.com/embed/MqL6BMOySIQ" frameborder="0" allowfullscreen> </iframe>
+</figure>
 
 
 ## Dependancies
