@@ -62,6 +62,6 @@ if __name__ == "__main__":
     # vis.plot_temp(prof.spaces, temps, it, interf=prof.interf)
     # vis.plot_multi_temp(prof.spaces, temps, n_curves=10)
     anim = vis.beautiful_animate_function(
-        prof.spaces, temps, interf=prof.interf, step=5, frames=30, save=True
+        prof.spaces, temps, interf=prof.interf, step=10, frames=200, save=True
     )
     # plt.show()

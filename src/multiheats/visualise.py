@@ -79,7 +79,7 @@ def beautiful_animate_function(
 ):
     """Plot an animation of the temperature with time"""
     frames = temps.shape[0] // step if frames is None else frames
-    fig, ax = plt.subplots(figsize=(5, 4))
+    fig, ax = plt.subplots(figsize=(5, 4.5))
     (line,) = ax.plot([], color="#d08770")
     ax.axvline(x=interf, alpha=0.3, linestyle="--", color="#88c0d0")
 
@@ -111,7 +111,7 @@ def beautiful_animate_function(
         anim.save(
             "../../examples/temp_evo.gif",
             dpi=100,
-            savefig_kwargs={"transparent": True, "facecolor": "#2e3440"},
+            savefig_kwargs={"transparent": True, "facecolor": "#333238"},
             progress_callback=progress_callback,
         )
     return anim
