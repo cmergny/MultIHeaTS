@@ -13,6 +13,7 @@ test:
   before_script:
     - conda env create -f environment.yml
     - source activate multiheats
+    - pip install -e .
 
   # Run the tests using pytest
   script:
