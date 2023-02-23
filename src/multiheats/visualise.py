@@ -39,13 +39,12 @@ def plot_temp(spaces, temps, it, interf=0):
     ax.plot(spaces, temps[it])
     ax.set_xlabel("Depth (m)")
     ax.set_ylabel("Temperature (K)")
-    ax.set_ylim(0.9 * mean_temp, 1.1 * mean_temp)
+    ax.set_ylim(temps.min(), temps.max())
     ax.set_xlim(0, spaces.max())
     ax.set_xscale("symlog")
     plt.title("Bilayer temperature profile snapshot")
     plt.legend()
-    # plt.show()
-    plt.savefig("../../examples/temp_bilayer.png")
+    plt.show()
 
 
 def animate_function(spaces, temps, interf=0, step=1, frames=None, save=False):
@@ -53,7 +52,7 @@ def animate_function(spaces, temps, interf=0, step=1, frames=None, save=False):
     frames = temps.shape[0] // step if frames is None else frames
     fig, ax = plt.subplots()
     (line,) = ax.plot([])
-    ax.axvline(x=interf, alpha=0.3, linestyle="-", color="black")
+    ax.axvline(x=interf, alpha=0.6, linestyle="--", color="grey", label="Interface")
 
     def animate(it):
         line.set_data((spaces, temps[it * step]))
@@ -65,12 +64,13 @@ def animate_function(spaces, temps, interf=0, step=1, frames=None, save=False):
     ax.set_xlim(spaces.min(), spaces.max())
     ax.set_ylim(temps.min(), temps.max())
     ax.set_xscale("symlog")
-    anim = FuncAnimation(fig, animate, frames=frames, interval=1, repeat=False)
+    anim = FuncAnimation(fig, animate, frames=frames, interval=50, repeat=False)
     plt.title("Temperature Evolution")
+    plt.legend()
 
     if save:
         progress_callback = lambda i, n: print(f"Saving frame {i} of {n}")
-        anim.save("../../examples/temp_evo.gif", progress_callback=progress_callback)
+        anim.save("../../figures/temp_evo.mp4", progress_callback=progress_callback)
     return anim
 
 
@@ -108,7 +108,7 @@ def beautiful_animate_function(
     if save:
         progress_callback = lambda i, n: print(f"Saving frame {i} of {n}")
         anim.save(
-            "../../examples/temp_evo.gif",
+            "../../figures/temp_evo.gif",
             dpi=100,
             savefig_kwargs={"transparent": True, "facecolor": "#333238"},
             progress_callback=progress_callback,

@@ -108,7 +108,6 @@ class OldImplicitSolver(ImplicitSolver):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.copy_temp = np.copy(self.temp)
 
     def implicit_scheme(self, nt, dt):
         """
@@ -116,24 +115,21 @@ class OldImplicitSolver(ImplicitSolver):
         Returns: u[:, :] np.array with u.shape=(nx, nt)
         """
         rcoef = dt / self.rho / self.cp
-        self.rcoef = rcoef
         A = np.zeros((self.nx, self.nx, nt))
-        self.temp = np.zeros((self.nx, nt))
-        self.temp[:, 0] = self.copy_temp
 
         for it in range(1, nt):
             for ix in range(1, self.nx - 1):
                 A[ix, ix - 1] = (
                     rcoef[ix]
-                    / self.dx[ix] ** 2
+                    / self.dx[ix]
                     / 4
                     * (self.cond[ix + 1] - self.cond[ix - 1] - 4 * self.cond[ix])
                 )  # an
-                A[ix, ix] = 1 + 2 * rcoef[ix] / self.dx[ix] ** 2 * self.cond[ix]  # bn
+                A[ix, ix] = 1 + 2 * rcoef[ix] / self.dx[ix] * self.cond[ix]  # bn
                 A[ix, ix + 1] = (
                     rcoef[ix]
                     / 4
-                    * self.dx[ix] ** 2
+                    * self.dx[ix]
                     * (self.cond[ix - 1] - self.cond[ix + 1] - 4 * self.cond[ix])
                 )  # cn
             # Add source term
@@ -153,13 +149,11 @@ class OldImplicitSolver(ImplicitSolver):
 
             # Source = T-1 si BC=0 et Q=0
             # Matrix
-            A[0, 0, :] = 1 + 2 * self.rcoef[0] * self.cond[0] / self.dx[0] ** 2  # b1
-            A[0, 1, :] = -2 * self.rcoef[0] * self.cond[0] / self.dx[0] ** 2  # c1
-            A[self.nx - 1, self.nx - 2, :] = (
-                -2 * self.rcoef[-1] * self.cond[-1] / self.dx[-1] ** 2
-            )  # an
+            A[0, 0, :] = 1 + 2 * self.rcoef[0] * self.cond[0]  # b1
+            A[0, 1, :] = -2 * self.rcoef[0] * self.cond[0]  # c1
+            A[self.nx - 1, self.nx - 2, :] = -2 * self.rcoef[-1] * self.cond[-1]  # an
             A[self.nx - 1, self.nx - 1, :] = (
-                1 + 2 * self.rcoef[-1] * self.cond[-1] / self.dx[-1] ** 2
+                1 + 2 * self.rcoef[-1] * self.cond[-1]
             )  # bn
         # Change mode
         elif mode == "Dirichlet":

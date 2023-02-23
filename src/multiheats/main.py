@@ -23,10 +23,10 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 from matplotlib.animation import FuncAnimation
 
-from solvers import ImplicitSolver
-from create_profiles import Profile
-from solar_flux import SurfFlux
-import visualise as vis
+from multiheats.solvers import ImplicitSolver
+from multiheats.create_profiles import Profile
+from multiheats.solar_flux import SurfFlux
+import multiheats.visualise as vis
 
 ### MAIN
 
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     temp_eq = surf.get_eq_temp(prof.lat, prof.long, prof.eps)
     prof.temp = np.full(prof.nx, temp_eq)
 
-    times = surf.times[:]
+    times = surf.times
     nt = times.shape[0]
     dt = np.diff(times)[0]
     temps = np.zeros((nt, prof.nx))
@@ -57,11 +57,12 @@ if __name__ == "__main__":
         temps[it] = prof.temp
 
     print("Visualisation")
-    it = 490
+    it = 90
     # vis.use_latex()
     # vis.plot_temp(prof.spaces, temps, it, interf=prof.interf)
     # vis.plot_multi_temp(prof.spaces, temps, n_curves=10)
-    anim = vis.beautiful_animate_function(
-        prof.spaces, temps, interf=prof.interf, step=10, frames=200, save=True
+
+    anim = vis.animate_function(
+        prof.spaces, temps, interf=prof.interf, step=5, frames=400, save=True
     )
     # plt.show()
