@@ -3,7 +3,8 @@ import numpy as np
 # import matplotlib.pyplot as plt
 
 from multiheats.solvers import ImplicitSolver
-import visu_ana as vis
+
+# import visu_ana as vis
 
 
 ### CLASS
