@@ -1,127 +1,125 @@
 import numpy as np
-import matplotlib.pyplot as plt
+
+# import matplotlib.pyplot as plt
 
 from multiheats.solvers import ImplicitSolver
-from multiheats.old_solvers import OldImplicitSolver, OldValidator
+import visu_ana as vis
 
 
 ### CLASS
 
 
-class Validator:
-    """Class used to validate the numerical solver solutions.
-    It computes analytical solutions for known initial temperatures."""
+class FakeProfile:
+    """
+    Fake profile to run the comparaison between Implicit Solver and Analytic solution.
+    """
 
     def __init__(self, nx) -> None:
         self.nx = nx
+        self.length = 1
+        self.spaces = self.irregular_space()
+        self.dx = np.diff(self.spaces)
+
         self.temp = np.zeros(nx)
-        self.temp[nx // 2 :] = 1
-        self.a0 = 1
+        idxs = np.where(self.spaces > self.length / 2)
+        self.temp[idxs] = 1
 
         self.cond = np.full(self.nx, 0.3)
         self.rho = np.full(self.nx, 1)
         self.cp = np.full(self.nx, 1)
-
         self.qheat = np.zeros(nx)
         self.eps = 0
-        self.L = 1
-        self.spaces = np.linspace(0, self.L, self.nx)
-
         self.alpha = (self.cond / self.rho / self.cp).mean()
 
-    def solve_stepfunction(self, time, n_fourier=50):
-        """
-        Computes the analytic sol of the heat equa in [0,L] with:
-             u(x, 0) = 0 if x<L/2 and 1 if x>L/2
-             u'(O) = u'(L) = 0
-        Returns: new_temp: array of temperature for t=time, shape = (nx)
-        """
-        un = np.zeros(n_fourier)
-        new_temp = np.zeros(self.nx)
+    def regular_space(self):
+        spaces = np.linspace(0, self.length, self.nx)
+        return spaces
 
-        for ix, x in enumerate(self.spaces):
-            # Sum all fourier coefficients
-            for n in range(1, n_fourier, 2):
-                an = 2 / np.pi / n * (-1) ** ((n - 1) / 2 + 1)
-                bn = 0
-                wn = n * np.pi * x / self.L  # pulsation
-                un[n] = (an * np.cos(wn) + bn * np.sin(wn)) * np.exp(
-                    -self.alpha * (n * np.pi / self.L) ** 2 * time
-                )
-            new_temp[ix] = self.a0 / 2 + un.sum()
-        # Properties
+    def irregular_space(self):
+        mean = self.length / 2
+        thick = self.length / 5
+        spaces = np.linspace(0, self.length, self.nx - 1)
+        distances = np.abs(spaces - mean)
 
-        return new_temp
+        sigmoid = 1 / (1 + np.exp(-(distances - mean) / mean / thick))
+        sigmoid /= np.max(sigmoid)
+
+        irr_spaces = np.zeros(self.nx)
+        irr_spaces[1:] = np.cumsum(sigmoid) * self.length / np.sum(sigmoid)
+        return irr_spaces
+
+    def power_spaces(self):
+        pwr = 1.5
+        spaces1 = np.linspace(0, (self.length / 2) ** pwr, self.nx // 2) ** (1 / pwr)
+        jump = (spaces1[-1] - spaces1[-2]) ** (1 / pwr)
+        spaces2 = (
+            np.linspace(jump, (self.length / 2) ** (1 / pwr), self.nx // 2) ** pwr
+            + self.length / 2
+        )
+        spaces = np.concatenate((spaces1, spaces2))
+        return spaces
 
 
 ### FUNCTIONS
 
 
-def compare(spaces, val_temps, sol_temps):
-    fig, ax = plt.subplots()
-    nt = val_temps.shape[1]
-    for it in range(1, nt, nt // 10):
-        ax.plot(spaces, val_temps[:, it], color="blue")
-        ax.plot(spaces, sol_temps[:, it], color="red")
-    ax.set_ylim(0, 1)
-    ax.set_xlabel("Depth (m)")
-    ax.set_ylabel("Temperature (K)")
-    plt.legend(["Analytic", "Solver"])
-    plt.show()
-
-
-def visu(spaces, temps):
-    fig, ax = plt.subplots()
-    for it in range(temps.shape[1]):
-        ax.plot(spaces, temps[:, it], label=f"{it}")
-    # ax.set_ylim(0, 1)
-    ax.set_xlabel("Depth (m)")
-    ax.set_ylabel("Temperature (K)")
-    # plt.legend()
-    plt.show()
-
-
-def test_func():
+def analytic_step_fct(spaces, time, alpha, n_fourier=50):
     """
-    Test comparaison with analytic solution.
+    Computes the analytic sol of the heat equa in [0,L] with:
+         u(x, 0) = 0 if x<L/2 and 1 if x>L/2
+         u'(O) = u'(L) = 0
+    Returns: new_temp: array of temperature for t=time, shape = (nx)
     """
-    dt = 1e-4
-    nt = 1000
-    nx = 100
+    # spaces = np.linspace(0, 1, 100)
+    a0 = 1
+    length = spaces[-1]
+    un = np.zeros(n_fourier)
+    new_temp = np.zeros(spaces.shape[0])
+
+    for ix, x in enumerate(spaces):
+        # Sum all fourier coefficients
+        for n in range(1, n_fourier, 2):
+            an = 2 / np.pi / n * (-1) ** ((n - 1) / 2 + 1)
+            bn = 0
+            wn = n * np.pi * x / length  # pulsation
+            un[n] = an * np.cos(wn) + bn * np.sin(wn)
+            un[n] *= np.exp(-alpha * (n * np.pi / length) ** 2 * time)
+        new_temp[ix] = a0 / 2 + un.sum()
+    return new_temp
+
+
+def test_ana(threshold=0.05, nt=500):
+    """
+    Runs ImplicitSolver and Validator with same properties.
+    Computes the error between the two temperatures over nt iterations.
+    Test if mean total error is less than a certain threshold.
+    """
+    nx = 30
+
+    prof = FakeProfile(nx)
+    solver = ImplicitSolver(prof)
 
     val_temps = np.zeros((nx, nt))
     sol_temps = np.zeros((nx, nt))
+    val_temps[:, 0] = prof.temp
+    sol_temps[:, 0] = prof.temp
 
-    valid = Validator(nx)
-    solver = ImplicitSolver(valid)
-    val_temps[:, 0] = valid.temp
-    sol_temps[:, 0] = solver.temp
-
-    # Old solver
-    rho = np.ones((nx, nt))
-    cp = np.ones((nx, nt))
-    k = np.ones((nx, nt)) * 0.3
-    old_solver = OldImplicitSolver(
-        nx, nt, rho, cp, k, dt, solver.dx[0], valid.L, valid.temp
-    )
-    old_temps = old_solver.implicit_scheme()
-
-    # Old Validator
-    old_valid = OldValidator(nx, nt, rho, cp, k, dt, solver.dx[0], valid.L, valid.temp)
-    vold_temps = old_valid.solve_stepfunction()
-
-    # New Solver and Valid
+    # Stability Needed for Accuracy
     time = 0
+    unstable_factor = 1e3
+    dt = unstable_factor * prof.dx.min() ** 2 / (2 * prof.alpha)
+
     for it in range(1, nt):
         time += dt
         solver.temp = solver.implicit_scheme(dt)
+
         sol_temps[:, it] = solver.temp
-        val_temps[:, it] = valid.solve_stepfunction(time)
+        val_temps[:, it] = analytic_step_fct(prof.spaces, prof.alpha, time, 50)
 
-    # visu(valid.spaces, val_temps)
-    # visu(valid.spaces, sol_temps)
-    # visu(valid.spaces, old_temps)
-    compare(valid.spaces, vold_temps, old_temps)
+    err = abs(val_temps - sol_temps).sum(axis=0)
+    assert err.mean() < threshold
+    return err
 
 
-test_func()
+if __name__ == "__main__":
+    test_ana()
