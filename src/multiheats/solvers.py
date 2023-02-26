@@ -39,12 +39,11 @@ class ImplicitSolver:
         dx = self.dx
         prev_temp = np.copy(self.temp)
         matrice = np.zeros((self.nx, self.nx))
-
         for ix in range(1, self.nx - 1):
             # dkn/dx
-            dkn = (cond[ix + 1] - cond[ix]) / (dx[ix]) + (cond[ix] - cond[ix - 1]) / (
-                2 * dx[ix - 1]
-            )
+            dkn = (cond[ix + 1] - cond[ix]) / (2 * dx[ix]) + (
+                cond[ix] - cond[ix - 1]
+            ) / (2 * dx[ix - 1])
             # an
             matrice[ix, ix - 1] = (
                 -rcoef[ix]
@@ -68,7 +67,6 @@ class ImplicitSolver:
         # new_temp = np.linalg.solve(matrice, source)
         matric_inv = np.linalg.inv(matrice)
         new_temp = np.dot(matric_inv, source)
-
         return new_temp
 
     def set_flux_BC(self, matrice, source, dt):
