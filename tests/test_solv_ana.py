@@ -3,6 +3,7 @@ import numpy as np
 # import matplotlib.pyplot as plt
 
 from multiheats.solvers import ImplicitSolver
+from multiheats.solvers import CrankNicolson
 
 # import visu_ana as vis
 
@@ -98,7 +99,8 @@ def test_ana(threshold=0.05, nt=500):
     nx = 30
 
     prof = FakeProfile(nx)
-    solver = ImplicitSolver(prof)
+    # solver = ImplicitSolver(prof)
+    solver = CrankNicolson(prof)
 
     val_temps = np.zeros((nx, nt))
     sol_temps = np.zeros((nx, nt))
@@ -112,11 +114,13 @@ def test_ana(threshold=0.05, nt=500):
 
     for it in range(1, nt):
         time += dt
-        solver.temp = solver.implicit_scheme(dt)
+        # solver.temp = solver.implicit_scheme(dt)
+        solver.temp = solver.CN_scheme(dt, 0, 0)
 
         sol_temps[:, it] = solver.temp
         val_temps[:, it] = analytic_step_fct(prof.spaces, prof.alpha, time, 50)
 
+    # vis.plot_compare(prof.spaces, val_temps, sol_temps)
     err = abs(val_temps - sol_temps).sum(axis=0)
     assert err.mean() < threshold
     return err

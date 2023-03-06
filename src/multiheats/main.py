@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 from matplotlib.animation import FuncAnimation
 
-from multiheats.solvers import ImplicitSolver
+from multiheats.solvers import ImplicitSolver, CrankNicolson
 from multiheats.create_profiles import Profile
 from multiheats.solar_flux import SurfFlux
 import multiheats.visualise as vis
@@ -43,16 +43,21 @@ if __name__ == "__main__":
     temp_eq = surf.get_eq_temp(prof.lat, prof.long, prof.eps)
     prof.temp = np.full(prof.nx, temp_eq)
 
-    times = surf.times
+    times = surf.times[:1000]
     nt = times.shape[0]
     dt = np.diff(times)[0]
     temps = np.zeros((nt, prof.nx))
 
     print("Computing temperature evolution...")
-    for it in tqdm(range(times.shape[0])):
-        solver = ImplicitSolver(prof)
-        solver.solar_flux = -surf.get_flux(times[it], prof.lat, prof.long)
-        prof.temp = solver.implicit_scheme(dt)
+    for it in tqdm(range(times.shape[0] - 1)):
+        # solver = ImplicitSolver(prof)
+        # solver.solar_flux = -surf.get_flux(times[it], prof.lat, prof.long)
+        # prof.temp = solver.implicit_scheme(dt)
+
+        solver = CrankNicolson(prof)
+        solar_flux = -surf.get_flux(times[it], prof.lat, prof.long)
+        next_solar_flux = -surf.get_flux(times[it + 1], prof.lat, prof.long)
+        prof.temp = solver.CN_scheme(dt, solar_flux, next_solar_flux)
 
         temps[it] = prof.temp
 
@@ -62,6 +67,6 @@ if __name__ == "__main__":
     # vis.plot_temp(prof.spaces, temps, it, interf=prof.interf)
     # vis.plot_multi_temp(prof.spaces, temps, n_curves=10)
     anim = vis.animate_function(
-        prof.spaces, temps, interf=prof.interf, step=5, frames=400, save=True
+        prof.spaces, temps, interf=prof.interf, step=5, frames=400, save=False
     )
-    # plt.show()
+    plt.show()

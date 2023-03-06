@@ -4,7 +4,7 @@ from scipy.io import readsav
 from tqdm import tqdm
 
 import multiheats.constants as cst
-from multiheats.solvers import ImplicitSolver
+from multiheats.solvers import ImplicitSolver, CrankNicolson
 
 # import visu_ana as vis
 
@@ -100,14 +100,16 @@ def plot_error(err, spaces):
 
 def compare_plots(spencer, temps, prof):
     """Unsused"""
-    chosen_curves = [0, 434, 1288, 3488, -1]
-    # chosen_curves = [0]
+    # chosen_curves = [0, 434, 1288, 3488, -1]
+    chosen_curves = [300 * k for k in range(10)]
     fig, ax = plt.subplots()
+    spencer.spaces[0] = 1e-2
+    prof.spaces[0] = 1e-2
     for it in chosen_curves:
         ax.plot(spencer.spaces, spencer.temps[:, it], color="blue")
-        # ax.plot(prof.spaces, temps[:, it], ".", color="red")
-        ax.plot(prof.spaces[1:], temps[1:, it], ".", color="red")
-    ax.set_xscale("log")
+        ax.plot(prof.spaces, temps[:, it], ".", color="red")
+        # ax.plot(prof.spaces[1:], temps[1:, it], ".", color="red")
+    # ax.set_xscale("log")
     ax.set_xlabel("Depth (m)")
     ax.set_ylabel("Temperature (K)")
     # ax.set_ylim(30, 150)
@@ -115,7 +117,7 @@ def compare_plots(spencer, temps, prof):
     plt.show()
 
 
-def test_spencer(threshold=1.5):
+def test_spencer(threshold=1.0):
 
     nx = 101
     nday = 5
@@ -133,15 +135,23 @@ def test_spencer(threshold=1.5):
     temps[:, 0] = prof.temp
     dt = np.diff(times)[0]
 
-    for it in tqdm(range(1, nt)):
-        solver = ImplicitSolver(prof)
-        solver.solar_flux = slr_flux[it]
-        prof.temp = solver.implicit_scheme(dt)
+    for it in tqdm(range(1, nt - 1)):
+        # solver = ImplicitSolver(prof)
+        # solver.solar_flux = slr_flux[it]
+        # prof.temp = solver.implicit_scheme(dt)
+        solver = CrankNicolson(prof)
+        prof.temp = solver.CN_scheme(dt, slr_flux[it], slr_flux[it + 1])
         temps[:, it] = prof.temp
 
-    threshold = 1.5
-    err = abs(spencer.temps - temps[1:])
+    pos = np.arange(0, temps.shape[0])
+    pos = np.delete(pos, 1)
+    err = abs(spencer.temps - temps[pos, :])
+
     assert err.max() < threshold
+
+    compare_plots(spencer, temps, prof)
+
+    plot_error(err, prof.spaces[1:])
 
 
 if __name__ == "__main__":
