@@ -58,6 +58,11 @@ Then install the required conda environment:
 ```bash
 conda env create -f environment.yml
 ```
+Finally you need to make multiheats a python package by typing:
+```bash
+pip install -e .
+```
+(It is plan to replace the conda env by packaging all dependancies in pip.)
 
 # How to use
 Make sure to activate the conda environment before executing anything:
