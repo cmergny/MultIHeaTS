@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 from matplotlib.animation import FuncAnimation
 
-from multiheats.solvers import ImplicitSolver, CrankNicolson
+from multiheats.solvers import ImplicitSolver
 from multiheats.create_profiles import Profile
 from multiheats.solar_flux import SurfFlux
 import multiheats.visualise as vis
@@ -59,6 +59,8 @@ if __name__ == "__main__":
         # next_solar_flux = -surf.get_flux(times[it + 1], prof.lat, prof.long)
         # prof.temp = solver.CN_scheme(dt, solar_flux, next_solar_flux)
 
+        solver.solar_flux = -surf.get_flux(times[it], prof.lat, prof.long)
+        prof.temp = solver.implicit_scheme(dt)
         temps[it] = prof.temp
 
     print("Visualisation")
