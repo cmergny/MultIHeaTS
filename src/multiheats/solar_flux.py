@@ -68,6 +68,7 @@ class SurfFlux:
     def get_flux(self, time, lat, long):
         """
         Get flux array for a given lat and long.
+        in W/m2
         """
         itime = find_nearest(self.times, time)
         flux = self.get_local_fluxs(lat, long)[itime]

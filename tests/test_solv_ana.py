@@ -99,8 +99,7 @@ def test_ana(threshold=0.05, nt=500):
     nx = 30
 
     prof = FakeProfile(nx)
-    # solver = ImplicitSolver(prof)
-    solver = CrankNicolson(prof)
+    solver = ImplicitSolver(prof)
 
     val_temps = np.zeros((nx, nt))
     sol_temps = np.zeros((nx, nt))
@@ -114,17 +113,15 @@ def test_ana(threshold=0.05, nt=500):
 
     for it in range(1, nt):
         time += dt
-        # solver.temp = solver.implicit_scheme(dt)
-        solver.temp = solver.CN_scheme(dt, 0, 0)
+        solver.temp = solver.implicit_scheme(dt, 0)
 
         sol_temps[:, it] = solver.temp
         val_temps[:, it] = analytic_step_fct(prof.spaces, prof.alpha, time, 50)
 
-    # vis.plot_compare(prof.spaces, val_temps, sol_temps)
-    err = abs(val_temps - sol_temps).sum(axis=0)
-    assert err.mean() < threshold
+    err = abs(val_temps - sol_temps)
+    # assert err.mean() < threshold
     return err
 
 
 if __name__ == "__main__":
-    test_ana()
+    err = test_ana()

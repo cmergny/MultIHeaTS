@@ -25,10 +25,9 @@ class ImplicitSolver:
         self.qheat = prof.qheat
         self.eps = prof.eps
         self.nx = prof.spaces.shape[0]
-        self.solar_flux = 0
         self.dx = np.diff(prof.spaces)
 
-    def implicit_scheme(self, dt):
+    def implicit_scheme(self, dt, solar_flux):
         """
         Solves the discretized heat equation implicitely
         with Euler Backward Scheme.
@@ -63,7 +62,7 @@ class ImplicitSolver:
 
         # Set BC
         source = prev_temp + rcoef * self.qheat
-        matrice, source = self.set_flux_BC(matrice, source, dt)
+        matrice, source = self.set_flux_BC(matrice, source, dt, solar_flux)
 
         # Use solve banded
         matrice2 = np.zeros((3, self.nx))
@@ -73,7 +72,7 @@ class ImplicitSolver:
         new_temp = scipy.linalg.solve_banded((1, 1), matrice2, source)
         return new_temp
 
-    def set_flux_BC(self, matrice, source, dt):
+    def set_flux_BC(self, matrice, source, dt, solar_flux):
         """
         Set boundary conditions for implicit Euler Scheme
         Imposed flux or imposed temperature possible.
@@ -82,7 +81,7 @@ class ImplicitSolver:
         cond = self.cond
 
         # Set Boundary conditions
-        bc_top = self.solar_flux / cond[0]
+        bc_top = solar_flux / cond[0]
         bc_top += self.eps * cst.SIGMA / self.cond[0] * self.temp[0] ** 4
         self.bc_top = bc_top
         bc_bottom = 0
@@ -124,7 +123,6 @@ class CrankNicolson:
         self.qheat = prof.qheat
         self.eps = prof.eps
         self.nx = prof.spaces.shape[0]
-        self.solar_flux = 0
         self.dx = np.diff(prof.spaces)
         self.spaces = prof.spaces
 
@@ -158,13 +156,14 @@ class CrankNicolson:
         bc_bottom = 0
 
         # set some constants
-        alpha = np.zeros(nx - 1)
-        gamma = np.zeros(nx - 1)
-        beta = dt / (rhoc[1] + rhoc[2]) / self.dx[0] ** 2
-        alpha[0] = beta * self.cond[1]
-        gamma[0] = beta * self.cond[0]
+        dz = self.spaces[1]
+        alpha = np.zeros(nx)
+        gamma = np.zeros(nx)
+        beta = dt / (rhoc[1] + rhoc[2]) / dz**2
+        alpha[1] = beta * self.cond[2]
+        gamma[1] = beta * self.cond[1]
 
-        for i in range(1, nx - 2):
+        for i in range(2, nx - 1):
             buf = dt / (self.spaces[i + 1] - self.spaces[i - 1])
             alpha[i] = (
                 2
@@ -184,13 +183,13 @@ class CrankNicolson:
         gamma[-1] = self.cond[-1] * buf / (2 * rhoc[-1])  # assumes rhoc[nx+1]=rhoc[nx]
         alpha[-1] = 0.0  # ensures b[nx-1] = 1 + gamma[nx-1]
 
-        self.cond1 = self.cond[0] / self.dx[0]
+        self.cond1 = self.cond[0] / dz
 
         # nx-1 because T[0] traité à part.
         matrice = np.zeros((3, nx - 1))
-        matrice[0, 1:] = -alpha[:-1]  # coefficient 'c'
-        matrice[1, :] = 1.0 + alpha + gamma  # coefficient 'b'
-        matrice[2, :-1] = -gamma[1:]  # coefficient 'a'
+        matrice[0, 1:] = -alpha[1:-1]  # coefficient 'c'
+        matrice[1, :] = 1.0 + alpha[1:] + gamma[1:]  # coefficient 'b'
+        matrice[2, :-1] = -gamma[2:]  # coefficient 'a'
 
         Tr = self.temp[0]  # 'reference' temperature
         itr = 0
@@ -203,6 +202,7 @@ class CrankNicolson:
                     Tr * new_temp[0]
                 )  # lineariself.spacese around an intermediate temperature
                 new_temp[1:] = self.temp[1:]
+                print(f"Reiterating {itr}")
 
             # Emission
             arad = -3.0 * self.eps * cst.SIGMA * Tr**4
@@ -213,13 +213,13 @@ class CrankNicolson:
             b1 = 1.0 + alpha[1] + gamma[1] - gamma[1] * bn  # b[1]
 
             # Set RHS
-            source = np.zeros(nx - 1)
-            source[0] = (
+            source = np.zeros(nx)
+            source[1] = (
                 gamma[1] * (annp1 + ann)
                 + (1.0 - alpha[1] - gamma[1] + gamma[1] * bn) * new_temp[1]
                 + alpha[1] * new_temp[2]
             )
-            for i in range(1, nx - 1):  # 2...nx-1
+            for i in range(2, nx - 1):  # 2...nx-1
                 source[i] = (
                     gamma[i] * new_temp[i - 1]
                     + (1.0 - alpha[i] - gamma[i]) * new_temp[i]
@@ -234,7 +234,7 @@ class CrankNicolson:
             matrice[1, 0] = b1  # coefficient b[1]
 
             # Solve for T at n+1
-            new_temp[1:] = scipy.linalg.solve_banded((1, 1), matrice, source)
+            new_temp[1:] = scipy.linalg.solve_banded((1, 1), matrice, source[1:])
             new_temp[0] = 0.5 * (annp1 + bn * new_temp[1] + new_temp[1])  # (T0+T1)/2
 
             # iterative predictor-corrector

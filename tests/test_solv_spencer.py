@@ -2,11 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.io import readsav
 from tqdm import tqdm
+import time
 
 import multiheats.constants as cst
 from multiheats.solvers import ImplicitSolver, CrankNicolson
-
-# import visu_ana as vis
 
 
 class SpencerModel:
@@ -38,14 +37,14 @@ class FakeProfile:
     Fake profile to run the comparaison between Implicit Solver and Spencer Model.
     """
 
-    def __init__(self, nx) -> None:
-        self.nx = nx
+    def __init__(self) -> None:
+        self.nx = 101
         self.length = 2.0
         self.spaces = self.regular_space()
         # self.spaces = self.power_spaces(pwr=4)
         self.dx = np.diff(self.spaces)
 
-        self.temp = np.full(nx, 89.9130)
+        self.temp = np.full(self.nx, 89.9130)
 
         inter = 0.5
         self.rho = bilayer(self.spaces, 800, 2000, inter * 0.5)
@@ -53,7 +52,7 @@ class FakeProfile:
         self.inertia = bilayer(self.spaces, 200, 20, inter * 1.5)
         self.cond = self.inertia**2 / self.rho / self.cp
 
-        self.qheat = np.zeros(nx)
+        self.qheat = np.zeros(self.nx)
         self.eps = 1
         self.alb = 0.015
 
@@ -67,8 +66,10 @@ class FakeProfile:
         return spaces
 
 
-def fake_slr_flux(alb, distance, times, period, cond):
+def fake_slr_flux(alb, times, cond):
     """Use a cosinus like function to modelise the solar flux."""
+    distance = 9.51 * cst.UA
+    period = 79.3 * cst.EARTH_DAY  # day on Japet (in sec)
     solar_flux = (1 - alb) * cst.SOLAR_CST / (distance / cst.UA) ** 2
 
     surface_bc = -solar_flux * np.cos(2 * np.pi * times / period + np.pi)
@@ -100,14 +101,16 @@ def plot_error(err, spaces):
 
 def compare_plots(spencer, temps, prof):
     """Unsused"""
-    # chosen_curves = [0, 434, 1288, 3488, -1]
-    chosen_curves = [300 * k for k in range(10)]
+    # chosen_curves = [0, 434, 1288, 3488, -10]
+    chosen_curves = [10]
     fig, ax = plt.subplots()
     spencer.spaces[0] = 1e-2
     prof.spaces[0] = 1e-2
+    factor = 1e3
     for it in chosen_curves:
-        ax.plot(spencer.spaces, spencer.temps[:, it], color="blue")
         ax.plot(prof.spaces, temps[:, it], ".", color="red")
+        # ax.plot(prof.spaces, temps_CN[:, it], ".", color="green")
+        ax.plot(spencer.spaces, spencer.temps[:, int(it * factor)], ".", color="blue")
         # ax.plot(prof.spaces[1:], temps[1:, it], ".", color="red")
     # ax.set_xscale("log")
     ax.set_xlabel("Depth (m)")
@@ -117,42 +120,144 @@ def compare_plots(spencer, temps, prof):
     plt.show()
 
 
-def test_spencer(threshold=1.0):
+def run_solver(name, frame_jump=1):
+    """Iterate over time to run solver and return array of temperatures."""
 
-    nx = 101
     nday = 5
-    nt = int(nday * 10e3)
-    distance = 9.51 * cst.UA
-    rot_period = 79.3 * cst.EARTH_DAY  # day on Japet (in sec)
-    tf = nday * rot_period
+    nt = int(nday * 10e3 / frame_jump)
+    tf = nday * 79.3 * cst.EARTH_DAY
     times = np.linspace(0, tf, nt)
 
-    spencer = SpencerModel()
-    prof = FakeProfile(nx)
-    slr_flux = fake_slr_flux(prof.alb, distance, times, rot_period, prof.cond)
+    prof = FakeProfile()
+    slr_flux = fake_slr_flux(prof.alb, times, prof.cond)
 
-    temps = np.zeros((nx, nt))
+    nt = times.shape[0]
+    temps = np.zeros((prof.nx, nt))
     temps[:, 0] = prof.temp
     dt = np.diff(times)[0]
 
-    for it in tqdm(range(1, nt - 1)):
-        # solver = ImplicitSolver(prof)
-        # solver.solar_flux = slr_flux[it]
-        # prof.temp = solver.implicit_scheme(dt)
-        solver = CrankNicolson(prof)
-        prof.temp = solver.CN_scheme(dt, slr_flux[it], slr_flux[it + 1])
+    start = time.time()
+
+    for it in tqdm(range(1, nt)):
+        if name == "Implicit":
+            solver = ImplicitSolver(prof)
+            prof.temp = solver.implicit_scheme(dt, slr_flux[it])
+        if name == "CN" and it < nt - 1:
+            solver = CrankNicolson(prof)
+            prof.temp = solver.CN_scheme(dt, -slr_flux[it], -slr_flux[it + 1])
         temps[:, it] = prof.temp
 
-    pos = np.arange(0, temps.shape[0])
-    pos = np.delete(pos, 1)
-    err = abs(spencer.temps - temps[pos, :])
+    duration = (time.time() - start) / nt
 
+    return temps, prof.spaces, duration
+
+
+def test_spencer(threshold=1.0):
+
+    spencer = SpencerModel()
+    solv_temps, _, _ = run_solver("Implicit", frame_jump=1)
+
+    pos = np.arange(0, solv_temps.shape[0])
+    pos = np.delete(pos, 1)
+    err = abs(spencer.temps - solv_temps[pos, :])
+
+    # plot_error(err, prof.spaces[1:])
     assert err.max() < threshold
 
-    compare_plots(spencer, temps, prof)
 
-    plot_error(err, prof.spaces[1:])
+def compare_solvers(frame_jump):
+    """Compare Explicit (Spencer), Implicit and CrankNicolson"""
+
+    spencer = SpencerModel()
+    imp_temps, imp_spaces, imp_dur = run_solver("Implicit", frame_jump)
+    cn_temps, cn_spaces, cn_dur = run_solver("CN", frame_jump)
+
+    pos = np.arange(0, imp_temps.shape[0])
+    pos = np.delete(pos, 1)
+    imp_err = abs(spencer.temps[:, ::frame_jump] - imp_temps[pos, :])
+    cn_err = abs(spencer.temps[:, ::frame_jump] - cn_temps[pos, :])
+
+    return imp_err, cn_err, imp_dur, cn_dur
+
+
+def compare_errors():
+
+    jumps = [2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000]
+    imp_means = np.zeros(len(jumps))
+    cn_means = np.zeros(len(jumps))
+    imp_maxs = np.zeros(len(jumps))
+    cn_maxs = np.zeros(len(jumps))
+    imp_duration = np.zeros(len(jumps))
+    cn_duration = np.zeros(len(jumps))
+
+    for i, frame_jump in enumerate(jumps):
+        imp_err, cn_err, imp_dur, cn_dur = compare_solvers(frame_jump)
+        imp_means[i] = imp_err.mean()
+        imp_maxs[i] = imp_err.max()
+        cn_means[i] = cn_err.mean()
+        cn_maxs[i] = cn_err.max()
+        imp_duration[i] = imp_dur
+        cn_duration[i] = cn_dur
+
+    day_frac = np.array(jumps) / 10e3
+
+    fig, ax = plt.subplots()
+    ax.plot(jumps, imp_maxs, "-", marker="x", label="IM max")
+    ax.plot(jumps, cn_maxs, "-", marker="x", label="CN max")
+    ax.set_xlabel("Frames Jumped")
+    ax.set_ylabel("Max Error")
+    ax.set_yscale("log")
+    ax.set_xscale("log")
+    plt.legend()
+    plt.show()
+
+    fig, ax = plt.subplots()
+    ax.plot(jumps, imp_means, "-", marker="x", label="IM max")
+    ax.plot(jumps, cn_means, "-", marker="x", label="CN max")
+    ax.set_xlabel("Frames Jumped")
+    ax.set_ylabel("Mean Error")
+    ax.set_yscale("log")
+    ax.set_xscale("log")
+    # ax.set_ylim(1e-2, 1)
+    plt.legend()
+    plt.show()
+
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ax.plot(day_frac, imp_duration, marker="x", label="Implicit")
+    ax.plot(day_frac, cn_duration, marker="x", label="CN")
+    ax.set_xlabel("Fraction of day (timestep).")
+    ax.set_ylabel("Computation Time per iteration (s)")
+    ax.set_xscale("log")
+    plt.legend()
+    plt.plot()
+
+    # print("imp ", imp_err.mean(), imp_err.max())
+    # print("CN ", cn_err.mean(), cn_err.max())
+
+    # imp_spaces[0] = 1e-2
+    # cn_spaces[0] = 1e-2
+    # spencer.spaces[0] = 1e-2
+    # chosen_curves = [30]
+    # fig, ax = plt.subplots()
+    # for it in chosen_curves:
+    #     ax.plot(imp_spaces, imp_temps[:, it], "-", color="red", label="Implicit")
+    #     ax.plot(cn_spaces, cn_temps[:, it], "-", color="green", label="CN")
+    #     ax.plot(
+    #         spencer.spaces,
+    #         spencer.temps[:, int(it * frame_jump)],
+    #         "-",
+    #         color="blue",
+    #         label="Spencer",
+    #     )
+    # ax.set_xscale("log")
+    # ax.set_xlabel("Depth (m)")
+    # ax.set_ylabel("Temperature (K)")
+    # # ax.set_ylim(30, 150)
+    # # ax.set_xlim(1e-2, 2)
+    # plt.legend()
+    # plt.show()
 
 
 if __name__ == "__main__":
-    test_spencer()
+    # test_spencer()
+    a = 2

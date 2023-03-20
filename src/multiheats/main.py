@@ -43,21 +43,21 @@ if __name__ == "__main__":
     temp_eq = surf.get_eq_temp(prof.lat, prof.long, prof.eps)
     prof.temp = np.full(prof.nx, temp_eq)
 
-    times = surf.times[:1000]
+    times = surf.times[:]
     nt = times.shape[0]
     dt = np.diff(times)[0]
     temps = np.zeros((nt, prof.nx))
 
     print("Computing temperature evolution...")
     for it in tqdm(range(times.shape[0] - 1)):
-        # solver = ImplicitSolver(prof)
-        # solver.solar_flux = -surf.get_flux(times[it], prof.lat, prof.long)
-        # prof.temp = solver.implicit_scheme(dt)
-
-        solver = CrankNicolson(prof)
+        solver = ImplicitSolver(prof)
         solar_flux = -surf.get_flux(times[it], prof.lat, prof.long)
-        next_solar_flux = -surf.get_flux(times[it + 1], prof.lat, prof.long)
-        prof.temp = solver.CN_scheme(dt, solar_flux, next_solar_flux)
+        prof.temp = solver.implicit_scheme(dt, solar_flux)
+
+        # solver = CrankNicolson(prof)
+        # # solar_flux = -surf.get_flux(times[it], prof.lat, prof.long)
+        # next_solar_flux = -surf.get_flux(times[it + 1], prof.lat, prof.long)
+        # prof.temp = solver.CN_scheme(dt, solar_flux, next_solar_flux)
 
         temps[it] = prof.temp
 
