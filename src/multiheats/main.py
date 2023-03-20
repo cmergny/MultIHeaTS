@@ -59,8 +59,6 @@ if __name__ == "__main__":
         # next_solar_flux = -surf.get_flux(times[it + 1], prof.lat, prof.long)
         # prof.temp = solver.CN_scheme(dt, solar_flux, next_solar_flux)
 
-        solver.solar_flux = -surf.get_flux(times[it], prof.lat, prof.long)
-        prof.temp = solver.implicit_scheme(dt)
         temps[it] = prof.temp
 
     print("Visualisation")
