@@ -27,7 +27,7 @@ Additional figures may be found in the *examples* directory.
 
 
 
-## Dependancies
+## Dependencies
 
 - a shell
 - git
