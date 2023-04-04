@@ -53,7 +53,7 @@ then cd to the path of the repositery on you computer
 cd path_to_multiheats/
 ```
 
-Then install the required conda environment:
+Then install the required conda environment ( an alternative method using pip is in WIP):
 
 ```bash
 conda env create -f environment.yml

@@ -43,7 +43,7 @@ if __name__ == "__main__":
     temp_eq = surf.get_eq_temp(prof.lat, prof.long, prof.eps)
     prof.temp = np.full(prof.nx, temp_eq)
 
-    times = surf.times[:500]
+    times = surf.times[:]
     nt = times.shape[0]
     dts = np.diff(times)
     temps = np.zeros((nt, prof.nx))
@@ -59,10 +59,10 @@ if __name__ == "__main__":
     print("Visualisation")
     it = 10
     # vis.use_latex()
-    vis.plot_temp(prof.spaces, temps, it, interf=prof.interf)
+    # vis.plot_temp(prof.spaces, temps, it, interf=prof.interf)
     # vis.plot_multi_temp(prof.spaces, temps, n_curves=10)
-    # anim = vis.animate_function(
-    #     prof.spaces, temps, interf=prof.interf, step=5, frames=400, save=False
-    # )
-    plt.savefig("hey.png")
-    # plt.show()
+    anim = vis.animate_function(
+        prof.spaces, temps, interf=prof.interf, step=5, frames=400, save=False
+    )
+    # plt.savefig("hey.png")
+    plt.show()

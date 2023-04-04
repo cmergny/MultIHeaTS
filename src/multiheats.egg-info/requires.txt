@@ -1,0 +1,8 @@
+wheel
+ipython
+numpy
+matplotlib
+scipy
+pandas
+tqdm
+xlrd

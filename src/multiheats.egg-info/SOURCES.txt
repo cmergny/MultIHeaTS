@@ -11,4 +11,5 @@ src/multiheats/visualise.py
 src/multiheats.egg-info/PKG-INFO
 src/multiheats.egg-info/SOURCES.txt
 src/multiheats.egg-info/dependency_links.txt
+src/multiheats.egg-info/requires.txt
 src/multiheats.egg-info/top_level.txt

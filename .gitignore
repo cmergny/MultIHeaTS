@@ -1,4 +1,6 @@
 figures/*
 multiheats.egg-info/*
+build/*
+dist/*
 tests/__pycache__/*
 src/multiheats/__pycache__/*
