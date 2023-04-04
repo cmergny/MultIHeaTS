@@ -43,7 +43,7 @@ if __name__ == "__main__":
     temp_eq = surf.get_eq_temp(prof.lat, prof.long, prof.eps)
     prof.temp = np.full(prof.nx, temp_eq)
 
-    times = surf.times[:]
+    times = surf.times[:500]
     nt = times.shape[0]
     dts = np.diff(times)
     temps = np.zeros((nt, prof.nx))
@@ -53,22 +53,16 @@ if __name__ == "__main__":
         solver = ImplicitSolver(prof)
         solar_flux = -surf.get_flux(times[it], prof.lat, prof.long)
         prof.temp = solver.implicit_scheme(dts[it], solar_flux)
-        # prof.temp = solver.implicit_scheme_slow(dts[it], solar_flux)
-
-        # solver = CrankNicolson(prof)
-        # solar_flux = -surf.get_flux(times[it], prof.lat, prof.long)
-        # next_solar_flux = -surf.get_flux(times[it + 1], prof.lat, prof.long)
-        # prof.temp = solver.CN_scheme(dts[it], solar_flux, next_solar_flux)
 
         temps[it] = prof.temp
 
     print("Visualisation")
-    it = 120
+    it = 10
     # vis.use_latex()
-    # vis.plot_temp(prof.spaces, temps, it, interf=prof.interf)
+    vis.plot_temp(prof.spaces, temps, it, interf=prof.interf)
     # vis.plot_multi_temp(prof.spaces, temps, n_curves=10)
     # anim = vis.animate_function(
     #     prof.spaces, temps, interf=prof.interf, step=5, frames=400, save=False
     # )
-    # plt.savefig("hey.png")
+    plt.savefig("hey.png")
     # plt.show()

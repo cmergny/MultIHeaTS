@@ -15,15 +15,15 @@ class Profile:
     """
 
     def __init__(self) -> None:
-        self.nx = 600
+        self.nx = 100
         self.lat = 0
         self.long = 0
         self.eps = 0.94  # Emissivity
         x0 = 0  # Surface depth (m)
-        xf = 10  # Total depth (m)
+        xf = 5  # Total depth (m)
 
         self.qheat = np.full(self.nx, 0)
-        power = 1.5
+        power = 3
         spaces = np.linspace(x0, xf ** (1 / power), self.nx)
         self.spaces = spaces ** (power)
         self.spaces = np.linspace(0, xf, self.nx)
@@ -36,7 +36,7 @@ class Profile:
             rho - Density (kg,m-3)
             cp - Heat capacity (J.kg-1.K-1)
         """
-        cond = 0.0001
+        cond = 0.03
         rho = 917.0
         cp = 839.0
 
