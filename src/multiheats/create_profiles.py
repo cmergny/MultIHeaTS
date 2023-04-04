@@ -15,18 +15,18 @@ class Profile:
     """
 
     def __init__(self) -> None:
-        self.nx = 100
+        self.nx = 600
         self.lat = 0
         self.long = 0
         self.eps = 0.94  # Emissivity
         x0 = 0  # Surface depth (m)
         xf = 10  # Total depth (m)
 
-        power = 4
         self.qheat = np.full(self.nx, 0)
+        power = 1.5
         spaces = np.linspace(x0, xf ** (1 / power), self.nx)
         self.spaces = spaces ** (power)
-        # prof.spaces = np.linspace(0, 2, self.nx)
+        self.spaces = np.linspace(0, xf, self.nx)
 
     def monolayer_prof(self):
         """
@@ -36,13 +36,14 @@ class Profile:
             rho - Density (kg,m-3)
             cp - Heat capacity (J.kg-1.K-1)
         """
-        cond = 0.01
+        cond = 0.0001
         rho = 917.0
         cp = 839.0
 
         self.cond = np.full(self.nx, cond)
         self.rho = np.full(self.nx, rho)
         self.cp = np.full(self.nx, cp)
+        self.interf = 0
 
     def bilayer_prof(self):
         """
@@ -76,6 +77,12 @@ class Profile:
         alpha = cond / rho / cp
         self.skin = np.sqrt(2 * alpha / omega)
         return self.skin
+
+    def stability_number(self, dt):
+        """Compute r = alpha dt/dx^2"""
+        dx = np.diff(self.spaces).min()
+        alpha = np.min(self.cond / self.rho / self.cp)
+        return alpha * dt / dx**2
 
 
 def bilayer(x, start, end, inter, transition=1):

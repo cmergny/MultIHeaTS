@@ -28,7 +28,7 @@ def plot_multi_temp(spaces, temps, n_curves=10):
     ax.set_ylabel("Temperature (K)")
     # ax.set_xscale("log")
     plt.legend()
-    plt.show()
+    # plt.show()
 
 
 def plot_temp(spaces, temps, it, interf=0):
@@ -36,7 +36,7 @@ def plot_temp(spaces, temps, it, interf=0):
     mean_temp = temps[it].mean()
     fig, ax = plt.subplots()
     ax.axvline(x=interf, alpha=0.2, linestyle="-", color="black", label="Interface")
-    ax.plot(spaces, temps[it])
+    ax.plot(spaces, temps[it], linestyle="-", marker=".")
     ax.set_xlabel("Depth (m)")
     ax.set_ylabel("Temperature (K)")
     ax.set_ylim(temps.min(), temps.max())
@@ -44,7 +44,7 @@ def plot_temp(spaces, temps, it, interf=0):
     ax.set_xscale("symlog")
     plt.title("Bilayer temperature profile snapshot")
     plt.legend()
-    plt.show()
+    # plt.show()
 
 
 def animate_function(spaces, temps, interf=0, step=1, frames=None, save=False):

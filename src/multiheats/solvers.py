@@ -5,6 +5,7 @@ Implicit solver of the heat equation.
 ### IMPORTS
 import numpy as np
 import scipy
+import time
 
 import multiheats.constants as cst
 
@@ -27,13 +28,14 @@ class ImplicitSolver:
         self.nx = prof.spaces.shape[0]
         self.dx = np.diff(prof.spaces)
 
-    def implicit_scheme(self, dt, solar_flux):
+    def implicit_scheme_slow(self, dt, solar_flux):
         """
         Solves the discretized heat equation implicitely
         with Euler Backward Scheme.
         Input: prev_temp at time it-1
         Returns: new_temp at time it np.array with shape=(nx)
         """
+
         rcoef = dt / self.rho / self.cp
         cond = self.cond
         dx = self.dx
@@ -41,6 +43,7 @@ class ImplicitSolver:
         matrice = np.zeros((self.nx, self.nx))
 
         for ix in range(1, self.nx - 1):
+
             # dkn/dx
             dkn = (cond[ix + 1] - cond[ix]) / (2 * dx[ix]) + (
                 cond[ix] - cond[ix - 1]
@@ -62,17 +65,97 @@ class ImplicitSolver:
 
         # Set BC
         source = prev_temp + rcoef * self.qheat
-        matrice, source = self.set_flux_BC(matrice, source, dt, solar_flux)
+        matrice, source = self.set_flux_BC_slow(matrice, source, dt, solar_flux)
 
         # Use solve banded
         matrice2 = np.zeros((3, self.nx))
         matrice2[0, 1:] = matrice.diagonal(1)
         matrice2[1, :] = matrice.diagonal(0)
         matrice2[2, :-1] = matrice.diagonal(-1)
+
         new_temp = scipy.linalg.solve_banded((1, 1), matrice2, source)
+
         return new_temp
 
-    def set_flux_BC(self, matrice, source, dt, solar_flux):
+    def set_flux_BC(self, dt, solar_flux):
+        """
+        Set boundary conditions for implicit Euler Scheme
+        Imposed flux or imposed temperature possible.
+        """
+        rcoef = dt / self.rho / self.cp
+        cond = self.cond
+
+        # Set Boundary conditions
+        bc_top = solar_flux / cond[0]
+        bc_top += self.eps * cst.SIGMA / self.cond[0] * self.temp[0] ** 4
+        self.bc_top = bc_top
+        bc_bottom = 0
+
+        s1 = (
+            self.temp[0]
+            + rcoef[0] * (cond[1] - 3 * cond[0]) / self.dx[0] * bc_top
+            + rcoef[0] * self.qheat[0]
+        )
+
+        sN = (
+            self.temp[-1]
+            + rcoef[-1] * (3 * cond[-1] - cond[-2]) * bc_bottom / self.dx[-1]
+            + rcoef[-1] * self.qheat[-1]
+        )
+
+        b1 = 1 + 2 * rcoef[0] * cond[0] / self.dx[0] ** 2  # b1
+        c1 = -2 * rcoef[0] * cond[0] / self.dx[0] ** 2  # c1
+        aN = -2 * rcoef[-1] * cond[-1] / self.dx[-1] ** 2  # aN
+        bN = 1 + 2 * rcoef[-1] * cond[-1] / self.dx[-1] ** 2  # bN
+        return s1, sN, b1, c1, aN, bN
+
+    def implicit_scheme(self, dt, solar_flux):
+        """
+        Solves the discretized heat equation implicitely
+        with Euler Backward Scheme.
+        Input: prev_temp at time it-1
+        Returns: new_temp at time it np.array with shape=(nx)
+        """
+
+        rcoef = dt / self.rho / self.cp
+        cond = self.cond
+        dx = self.dx
+        prev_temp = np.copy(self.temp)
+        matrice = np.zeros((3, self.nx))
+
+        dkn = (cond[2:] - cond[1:-1]) / (2 * dx[1:]) + (cond[1:-1] - cond[:-2]) / (
+            2 * dx[:-1]
+        )
+
+        matrice[2, :-2] = (
+            -rcoef[1:-1] / dx[:-1] * (-dkn / 2 + 2 * cond[1:-1] / (dx[1:] + dx[:-1]))
+        )  # an
+
+        matrice[1, 1:-1] = 1 - rcoef[1:-1] / (dx[1:] * dx[:-1]) * (
+            dkn / 2 * (dx[1:] - dx[:-1]) - 2 * cond[1:-1]
+        )  # bn
+
+        matrice[0, 2:] = (
+            -rcoef[1:-1] / dx[1:] * (dkn / 2 + 2 * cond[1:-1] / (dx[1:] + dx[:-1]))
+        )  # cn
+
+        # Set BC
+        source = prev_temp + rcoef * self.qheat
+        s1, sN, b1, c1, aN, bN = self.set_flux_BC(dt, solar_flux)
+        source[0] = s1
+        source[-1] = sN
+
+        matrice[1, 0] = b1
+        matrice[1, -1] = bN
+
+        matrice[0, 1] = c1
+        matrice[2, -2] = aN
+
+        new_temp = scipy.linalg.solve_banded((1, 1), matrice, source)
+
+        return new_temp
+
+    def set_flux_BC_slow(self, matrice, source, dt, solar_flux):
         """
         Set boundary conditions for implicit Euler Scheme
         Imposed flux or imposed temperature possible.

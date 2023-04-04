@@ -188,7 +188,7 @@ time.
 
 # Citation
 
-Article in Preparation :)
+Article Submitted to Computational Geoscience !
 
 
 # License
