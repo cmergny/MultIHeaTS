@@ -1,5 +1,6 @@
 wheel
 ipython
+pytest
 numpy
 matplotlib
 scipy

@@ -119,8 +119,8 @@ def test_ana(threshold=0.05, nt=500):
         val_temps[:, it] = analytic_step_fct(prof.spaces, prof.alpha, time, 50)
 
     err = abs(val_temps - sol_temps)
-    # assert err.mean() < threshold
-    return err
+    assert err.mean() < threshold
+    # return err
 
 
 if __name__ == "__main__":

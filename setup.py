@@ -9,6 +9,7 @@ setup(
     install_requires=[
         "wheel",
         "ipython",
+        "pytest",
         "numpy",
         "matplotlib",
         "scipy",
