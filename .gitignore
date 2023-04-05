@@ -4,3 +4,4 @@ build/*
 dist/*
 tests/__pycache__/*
 src/multiheats/__pycache__/*
+latex/*
