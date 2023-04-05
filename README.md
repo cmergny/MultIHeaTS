@@ -29,16 +29,24 @@ Additional figures may be found in the *examples* directory.
 
 ## Dependencies
 
-- a shell
+- python
 - git
-- conda
 
-You can find conda at https://www.anaconda.com/ although I would suggest installing it directly from the command line.
+<details>
+  <summary>Depecrated method</summary>
+
+  If you want to use conda env:
+  
+  You can find conda at https://www.anaconda.com/ although I would suggest installing it directly from the command line.
 Make sure conda is installed by tiping:
 ```bash
 conda
 ```
 It should return a help message.
+</details>
+
+
+
 
 ## Installation
 
@@ -47,27 +55,40 @@ Copy the project localy using git clone:
 ```bash
 git clone git@gitlab.dsi.universite-paris-saclay.fr:cyril.mergny/multiheats.git
 ```
-then cd to the path of the repositery on you computer
+then cd to the path of the repositery on you computer and create a venv environment:
 
 ```bash
 cd path_to_multiheats/
+python -m venv mheats
+source mheats/bin/activate
 ```
 
-Then install the required conda environment ( an alternative method using pip is in WIP):
+To install the package then you just need to type:
+```bash
+pip install --upgrade pip
+pip install -e .
+```
+
+<details>
+  <summary>Click for conda install (Not recommended)</summary>
+
+
+Install the required conda environment :
 
 ```bash
 conda env create -f environment.yml
 ```
-Finally you need to make multiheats a python package by typing:
+Please note that the environment.yml file has been deleted in newer versions. It can be found on older commits. Finally you need to make multiheats a python package by typing:
 ```bash
 pip install -e .
 ```
-(It is in my plans to replace the conda env by packaging all dependancies in pip.)
+</details>
+
 
 # How to use
-Make sure to activate the conda environment before executing anything:
+Make sure to activate the python environment before executing anything:
 ```bash
-conda activate multitheats
+source mheats/bin/activate
 ```
 
 There is an example script that you can run to see what the algorithm ouptut for a pre-defined profile.
