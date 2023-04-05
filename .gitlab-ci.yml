@@ -1,5 +1,5 @@
 # This is an example .gitlab-ci.yml file for running pytest
-# on each commit in a Python project using a conda environment.
+# on each commit in a Python project using a pip environment.
 
 # Define the job stages
 stages:
@@ -7,13 +7,14 @@ stages:
 
 # Define the test job
 test:
-  image: continuumio/miniconda3:latest
+  image: python:3.10
 
-  # Activate the conda environment and install dependencies
+  # Activate the pip environment and install dependencies
   before_script:
-    - conda env create -f environment.yml
-    - source activate multiheats
-    - pip install -e .
+    - python -m venv mheats
+    - source mheats/bin/activate
+    - pip install --upgrade pip
+    - pip install multiheats
 
   # Run the tests using pytest
   script:
