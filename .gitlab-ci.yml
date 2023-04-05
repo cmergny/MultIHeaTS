@@ -14,7 +14,7 @@ test:
     - python -m venv mheats
     - source mheats/bin/activate
     - pip install --upgrade pip
-    - pip install multiheats
+    - pip install -e .
 
   # Run the tests using pytest
   script:
