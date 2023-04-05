@@ -1,11 +1,20 @@
 from setuptools import setup, find_packages
 
+# read the contents of your README file
+from pathlib import Path
+
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
+
 setup(
     name="multiheats",
-    version="0.3",
+    version="0.401",
     packages=find_packages("src"),
     package_dir={"": "src"},
-    description="MultIHeaTS is a Multi-layered Implicit Heat Transfer Solver. It uses finite differences to  simulates and predicts the surface temperature in 1D multi-layered planetary surfaces exposed to solar radiation.",
+    readme="README.md",
+    description="MultIHeaTS is a Multi-layered Implicit Heat Transfer Solver.",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     install_requires=[
         "wheel",
         "ipython",
