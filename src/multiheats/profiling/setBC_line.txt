@@ -1,0 +1,43 @@
+Creating surface profile...
+Computing temperature evolution...
+Visualisation
+Wrote profile results to main.py.lprof
+Timer unit: 1e-06 s
+
+Total time: 0.912435 s
+File: /home/cmergny/Work/PhD/multiheats/src/multiheats/solvers.py
+Function: set_flux_BC at line 73
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    73                                               @profile
+    74                                               def set_flux_BC(self, rcoef, solar_flux):
+    75                                                   """
+    76                                                   Set boundary conditions for implicit Euler Scheme
+    77                                                   Imposed flux or imposed temperature possible.
+    78                                                   """
+    79     82197      28763.5      0.3      3.2          cond = self.cond
+    80                                           
+    81                                                   # Set Boundary conditions
+    82     82197      87152.2      1.1      9.6          self.bc_top = solar_flux / cond[0]
+    83     82197     131923.7      1.6     14.5          self.bc_top += self.eps * cst.SIGMA / cond[0] * self.temp[0] ** 4
+    84     82197      15219.8      0.2      1.7          bc_bottom = 0
+    85                                           
+    86     82197      12532.7      0.2      1.4          s1 = (
+    87     82197      25113.2      0.3      2.8              self.temp[0]
+    88     82197      95568.0      1.2     10.5              + rcoef[0] * (cond[1] - 3 * cond[0]) / self.dx[0] * self.bc_top
+    89     82197      47500.8      0.6      5.2              + rcoef[0] * self.qheat[0]
+    90                                                   )
+    91                                           
+    92     82197      12609.9      0.2      1.4          sN = (
+    93     82197      26346.4      0.3      2.9              self.temp[-1]
+    94     82197      81172.7      1.0      8.9              + rcoef[-1] * (3 * cond[-1] - cond[-2]) * bc_bottom / self.dx[-1]
+    95     82197      39183.5      0.5      4.3              + rcoef[-1] * self.qheat[-1]
+    96                                                   )
+    97                                           
+    98     82197      83336.4      1.0      9.1          b1 = 1 + 2 * rcoef[0] * cond[0] / self.dx[0] ** 2  # b1
+    99     82197      67519.5      0.8      7.4          c1 = -2 * rcoef[0] * cond[0] / self.dx[0] ** 2  # c1
+   100     82197      64211.4      0.8      7.0          aN = -2 * rcoef[-1] * cond[-1] / self.dx[-1] ** 2  # aN
+   101     82197      68543.9      0.8      7.5          bN = 1 + 2 * rcoef[-1] * cond[-1] / self.dx[-1] ** 2  # bN
+   102     82197      25737.7      0.3      2.8          return s1, sN, b1, c1, aN, bN
+

@@ -1,7 +1,8 @@
-from scipy.io import readsav
-import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+from scipy.io import readsav
+
+# import matplotlib.pyplot as plt
 
 import multiheats.constants as cst
 
@@ -65,13 +66,12 @@ class SurfFlux:
         temp_eq = (mean_surf_flux / eps / cst.SIGMA) ** (1 / 4)
         return temp_eq
 
-    def get_flux(self, time, lat, long):
+    def get_solar_fluxs(self, lat, long):
         """
         Get flux array for a given lat and long.
         in W/m2
         """
-        itime = find_nearest(self.times, time)
-        flux = self.get_local_fluxs(lat, long)[itime]
+        flux = self.get_local_fluxs(lat, long)
         self.alb = self.get_local_albedos(lat, long)
 
         return (1 - self.alb) * flux

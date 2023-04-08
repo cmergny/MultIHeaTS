@@ -48,21 +48,23 @@ if __name__ == "__main__":
     dts = np.diff(times)
     temps = np.zeros((nt, prof.nx))
 
-    print("Computing temperature evolution...")
-    for it in tqdm(range(times.shape[0] - 1)):
-        solver = ImplicitSolver(prof)
-        solar_flux = -surf.get_flux(times[it], prof.lat, prof.long)
-        prof.temp = solver.implicit_scheme(dts[it], solar_flux)
+    solar_fluxs = -surf.get_solar_fluxs(prof.lat, prof.long)
 
-        temps[it] = prof.temp
+    solver = ImplicitSolver(prof)
+    print("Computing temperature evolution...")
+    for i in range(25):
+        for it in tqdm(range(times.shape[0] - 1)):
+            prof.temp = solver.implicit_scheme(dts[it], solar_fluxs[it])
+            temps[it] = prof.temp
+            solver.temp = prof.temp
 
     print("Visualisation")
     it = 10
     # vis.use_latex()
     # vis.plot_temp(prof.spaces, temps, it, interf=prof.interf)
     # vis.plot_multi_temp(prof.spaces, temps, n_curves=10)
-    anim = vis.animate_function(
-        prof.spaces, temps, interf=prof.interf, step=5, frames=400, save=False
-    )
+    # anim = vis.animate_function(
+    #     prof.spaces, temps, interf=prof.interf, step=5, frames=400, save=False
+    # )
     # plt.savefig("hey.png")
-    plt.show()
+    # plt.show()
