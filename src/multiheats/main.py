@@ -19,11 +19,9 @@ __email__ = "cyril.mergny@universite-paris-saclay.fr"
 ### IMPORTS
 
 import numpy as np
-import matplotlib.pyplot as plt
 from tqdm import tqdm
-from matplotlib.animation import FuncAnimation
 
-from multiheats.solvers import ImplicitSolver, CrankNicolson
+from multiheats.solvers import ImplicitSolver
 from multiheats.create_profiles import Profile
 from multiheats.solar_flux import SurfFlux
 import multiheats.visualise as vis
@@ -57,6 +55,7 @@ if __name__ == "__main__":
             prof.temp = solver.implicit_scheme(dts[it], solar_fluxs[it])
             temps[it] = prof.temp
             solver.temp = prof.temp
+            solver.need_update = False
 
     print("Visualisation")
     it = 10

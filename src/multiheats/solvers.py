@@ -29,7 +29,6 @@ class ImplicitSolver:
         self.dx = np.diff(prof.spaces)
         self.need_update = True
 
-    @profile
     def implicit_scheme(self, dt, solar_flux):
         """
         Solves the discretized heat equation implicitely
@@ -39,12 +38,13 @@ class ImplicitSolver:
         """
 
         rcoef = dt / self.rho / self.cp
+
         if self.need_update:
-            self.matrix = update_matrix(self.nx, self.cond, self.dx, rcoef)
-            self.need_update = False
+            self.matrix = self.update_matrix(self.nx, self.cond, self.dx, rcoef)
 
         # Set BC
         source = self.temp + rcoef * self.qheat
+
         s1, sN, b1, c1, aN, bN = self.set_flux_BC(rcoef, solar_flux)
         source[0] = s1
         source[-1] = sN
@@ -68,55 +68,54 @@ class ImplicitSolver:
         Set boundary conditions for implicit Euler Scheme
         Imposed flux or imposed temperature possible.
         """
-        cond = self.cond
 
         # Set Boundary conditions
-        self.bc_top = solar_flux / cond[0]
-        self.bc_top += self.eps * cst.SIGMA / cond[0] * self.temp[0] ** 4
-        bc_bottom = 0
+        self.bc_top = (
+            solar_flux + self.eps * cst.SIGMA * self.temp[0] ** 4
+        ) / self.cond[0]
 
-        s1 = (
-            self.temp[0]
-            + rcoef[0] * (cond[1] - 3 * cond[0]) / self.dx[0] * self.bc_top
-            + rcoef[0] * self.qheat[0]
+        self.bc_bottom = 0
+
+        s1 = self.temp[0] + rcoef[0] * (
+            (self.cond[1] - 3 * self.cond[0]) / self.dx[0] * self.bc_top + self.qheat[0]
         )
 
-        sN = (
-            self.temp[-1]
-            + rcoef[-1] * (3 * cond[-1] - cond[-2]) * bc_bottom / self.dx[-1]
-            + rcoef[-1] * self.qheat[-1]
+        sN = self.temp[-1] + rcoef[-1] * (
+            (3 * self.cond[-1] - self.cond[-2]) * self.bc_bottom / self.dx[-1]
+            + self.qheat[-1]
         )
 
-        b1 = 1 + 2 * rcoef[0] * cond[0] / self.dx[0] ** 2  # b1
-        c1 = -2 * rcoef[0] * cond[0] / self.dx[0] ** 2  # c1
-        aN = -2 * rcoef[-1] * cond[-1] / self.dx[-1] ** 2  # aN
-        bN = 1 + 2 * rcoef[-1] * cond[-1] / self.dx[-1] ** 2  # bN
+        coef_top = rcoef[0] * self.cond[0] / self.dx[0] ** 2
+        coef_bot = rcoef[-1] * self.cond[-1] / self.dx[-1] ** 2
+
+        b1 = 1 + 2 * coef_top  # b1
+        c1 = -2 * coef_top  # c1
+        aN = -2 * coef_bot  # aN
+        bN = 1 + 2 * coef_bot  # bN
         return s1, sN, b1, c1, aN, bN
 
-
-# @numba.njit()
-def update_matrix(nx, cond, dx, rcoef):
-    """
-    Update the coefficients of the tridiagonal matrix.
-    Necessary if some of the thermal properties, the grid or the timestep are changed between iterations.
-    """
-    matrix = np.zeros((3, nx))
-    dkn = (cond[2:] - cond[1:-1]) / (2 * dx[1:]) + (cond[1:-1] - cond[:-2]) / (
-        2 * dx[:-1]
-    )
-    # an
-    matrix[2, :-2] = (
-        -rcoef[1:-1] / dx[:-1] * (-dkn / 2 + 2 * cond[1:-1] / (dx[1:] + dx[:-1]))
-    )
-    # bn
-    matrix[1, 1:-1] = 1 - rcoef[1:-1] / (dx[1:] * dx[:-1]) * (
-        dkn / 2 * (dx[1:] - dx[:-1]) - 2 * cond[1:-1]
-    )
-    # cn
-    matrix[0, 2:] = (
-        -rcoef[1:-1] / dx[1:] * (dkn / 2 + 2 * cond[1:-1] / (dx[1:] + dx[:-1]))
-    )
-    return matrix
+    def update_matrix(self, nx, cond, dx, rcoef):
+        """
+        Update the coefficients of the tridiagonal matrix.
+        Necessary if some of the thermal properties, the grid or the timestep are changed between iterations.
+        """
+        matrix = np.zeros((3, nx))
+        dkn = (cond[2:] - cond[1:-1]) / (2 * dx[1:]) + (cond[1:-1] - cond[:-2]) / (
+            2 * dx[:-1]
+        )
+        # an
+        matrix[2, :-2] = (
+            -rcoef[1:-1] / dx[:-1] * (-dkn / 2 + 2 * cond[1:-1] / (dx[1:] + dx[:-1]))
+        )
+        # bn
+        matrix[1, 1:-1] = 1 - rcoef[1:-1] / (dx[1:] * dx[:-1]) * (
+            dkn / 2 * (dx[1:] - dx[:-1]) - 2 * cond[1:-1]
+        )
+        # cn
+        matrix[0, 2:] = (
+            -rcoef[1:-1] / dx[1:] * (dkn / 2 + 2 * cond[1:-1] / (dx[1:] + dx[:-1]))
+        )
+        return matrix
 
 
 class CrankNicolson:

@@ -15,6 +15,9 @@ setup(
     description="MultIHeaTS is a Multi-layered Implicit Heat Transfer Solver.",
     long_description=long_description,
     long_description_content_type="text/markdown",
+    project_urls={
+        "Homepage": "https://gitlab.dsi.universite-paris-saclay.fr/cyril.mergny/multiheats/"
+    },
     install_requires=[
         "wheel",
         "ipython",
