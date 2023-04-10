@@ -5,7 +5,6 @@ Implicit solver of the heat equation.
 ### IMPORTS
 import numpy as np
 import scipy
-import numba
 
 import multiheats.constants as cst
 
