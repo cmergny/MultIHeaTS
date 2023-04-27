@@ -3,7 +3,8 @@ import numpy as np
 # import matplotlib.pyplot as plt
 
 from multiheats.solvers import ImplicitSolver
-from multiheats.solvers import CrankNicolson
+
+# from multiheats.solvers import CrankNicolson
 
 # import visu_ana as vis
 

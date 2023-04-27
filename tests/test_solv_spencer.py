@@ -5,7 +5,7 @@ from tqdm import tqdm
 import time
 
 import multiheats.constants as cst
-from multiheats.solvers import ImplicitSolver, CrankNicolson
+from multiheats.solvers import ImplicitSolver
 
 
 class SpencerModel:

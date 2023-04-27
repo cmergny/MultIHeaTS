@@ -15,7 +15,7 @@ class Profile:
     """
 
     def __init__(self) -> None:
-        self.nx = 600
+        self.nx = 100
         self.lat = 0
         self.long = 0
         self.eps = 0.94  # Emissivity
@@ -26,7 +26,7 @@ class Profile:
         power = 3
         spaces = np.linspace(x0, xf ** (1 / power), self.nx)
         self.spaces = spaces ** (power)
-        self.spaces = np.linspace(0, xf, self.nx)
+        # self.spaces = np.linspace(0, xf, self.nx)
 
     def monolayer_prof(self):
         """

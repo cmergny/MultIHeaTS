@@ -209,8 +209,10 @@ time.
 
 # Citation
 
-Article Submitted to Computational Geoscience !
+If you use this code or parts of this code in your work, please cite the following article:
 
+Mergny et al. 2023, [Article Submitted]
+Come back here later for the DOI.
 
 # License
 

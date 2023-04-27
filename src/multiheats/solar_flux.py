@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from scipy.io import readsav
 
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 import multiheats.constants as cst
 
@@ -88,19 +88,19 @@ def find_nearest(array, value, verbose=False):
 if __name__ == "__main__":
 
     print("This program is used for imports only.")
-    # lat, long = 13, 78
+    lat, long = 13, 78
 
-    # surf = SurfFlux()
-    # times = surf.times
-    # fluxs = np.zeros(times.shape[0])
+    surf = SurfFlux()
+    times = surf.times
+    fluxs = np.zeros(times.shape[0])
 
-    # for it, time in enumerate(times):
-    #     slr_flux, alb = surf.get_flux(time, lat, long)
-    #     fluxs[it] = slr_flux
+    for it, time in enumerate(times):
+        slr_flux, alb = surf.get_flux(time, lat, long)
+        fluxs[it] = slr_flux
 
-    # fig, ax = plt.subplots()
-    # ax.plot(times, fluxs, ".")
-    # ax.set_xlabel("Time")
-    # ax.set_ylabel("Flux")
-    # plt.title(f"Lat {lat}, Long {long}")
-    # plt.show()
+    fig, ax = plt.subplots()
+    ax.plot(times, fluxs, ".")
+    ax.set_xlabel("Time")
+    ax.set_ylabel("Flux")
+    plt.title(f"Lat {lat}, Long {long}")
+    plt.show()

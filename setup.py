@@ -8,7 +8,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="multiheats",
-    version="0.401",
+    version="0.402",
     packages=find_packages("src"),
     package_dir={"": "src"},
     readme="README.md",

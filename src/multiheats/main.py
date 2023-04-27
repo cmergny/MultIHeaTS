@@ -20,6 +20,7 @@ __email__ = "cyril.mergny@universite-paris-saclay.fr"
 
 import numpy as np
 from tqdm import tqdm
+import matplotlib.pyplot as plt
 
 from multiheats.solvers import ImplicitSolver
 from multiheats.create_profiles import Profile
@@ -62,8 +63,8 @@ if __name__ == "__main__":
     # vis.use_latex()
     # vis.plot_temp(prof.spaces, temps, it, interf=prof.interf)
     # vis.plot_multi_temp(prof.spaces, temps, n_curves=10)
-    # anim = vis.animate_function(
-    #     prof.spaces, temps, interf=prof.interf, step=5, frames=400, save=False
-    # )
+    anim = vis.animate_function(
+        prof.spaces, temps, interf=prof.interf, step=5, frames=400, save=False
+    )
     # plt.savefig("hey.png")
-    # plt.show()
+    plt.show()
