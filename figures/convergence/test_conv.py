@@ -27,11 +27,15 @@ Rau = 1.52
 decl = 0
 
 # Steps
-coef = np.arange(0, 1)
+coef = np.arange(0, 8)
 steps = 2 ** (12 - coef)
 dts = period / steps
 # Time
 nts = 512 * steps  # Add one step bc we count init temp
+
+# Saving dics
+dic_times = {}
+dic_temps = {}
 
 for isp, step in enumerate(steps):
     nt = nts[isp]
@@ -63,21 +67,12 @@ for isp, step in enumerate(steps):
         )
         prev_slr_flux = slr_flux
 
-    print(f"time (days) = {times[-1]/86400}")
+    # Save Everything
+    dic_times[step] = times
+    dic_temps[step] = temps
 
-
-# Rau = 1.52
-# decl = 0
-# lat = 5 * np.pi / 180
-# HA = 10
-# time = dt
-# # Compute
-# HA = 2 * np.pi * ((time / period) % 1.0)
-# flux = flux_noatm(Rau, decl, lat, HA)
-# print(f"time = {time}")
-# print(f"lat = {lat}")
-# print(f"HA = {HA}")
-# print(f"flux = {flux}")
+np.save("dic_times", dic_times)
+np.save("dic_temps", dic_temps)
 
 # idx = -1
 # fig, ax = plt.subplots()
