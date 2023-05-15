@@ -5,11 +5,6 @@ import matplotlib.pyplot as plt
 from conductionCrankQ import conductionQ, flux_noatm
 
 
-# ext_times = np.linspace(0, tf + dt, nt + 1)
-# temps = np.zeros((prof.nx, nt))
-# temps[:, 0] = prof.temp
-
-
 class FakeProfile:
     """Fake profile to reproduce converence figure."""
 
@@ -19,6 +14,7 @@ class FakeProfile:
         self.spaces = np.load("depth.npy")
         self.inertia = np.full(self.nx, 120)
         self.eps = 1
+        self.alb = 0.2
 
 
 # Params
@@ -31,46 +27,59 @@ Rau = 1.52
 decl = 0
 
 # Steps
-coef = np.arange(7, 8)
+coef = np.arange(0, 1)
 steps = 2 ** (12 - coef)
 dts = period / steps
 # Time
-nts = 512 * steps + 1  # Add one step bc we count init temp
+nts = 512 * steps  # Add one step bc we count init temp
 
 for isp, step in enumerate(steps):
     nt = nts[isp]
     dt = dts[isp]
     times = np.zeros(nt)
     temps = np.zeros((prof.nx, nt))
-    temps[:, 0] = 210
 
-    for it in tqdm(range(1, nt)):
-        # time
-        times[it] = it * dt
-        # Use prev HA ?
-        HA = 2 * np.pi * ((times[it] / period) % 1)
-        slr_flux = flux_noatm(Rau, decl, lat, HA)
-        next_HA = 2 * np.pi * (((times[it] + dt) / period) % 1)
-        next_slr_flux = flux_noatm(Rau, decl, lat, next_HA)
+    prev_temp = np.full(prof.nx, 210.0)
+    prev_slr_flux = (1 - prof.alb) * flux_noatm(Rau, decl, lat, HA=0)
+
+    for it in tqdm(range(0, nt)):
+        # Time
+        times[it] = (it + 1) * dt
+        HA = 2 * np.pi * ((times[it] / period) % 1.0)
+        slr_flux = (1 - prof.alb) * flux_noatm(Rau, decl, lat, HA)
 
         temps[:, it] = conductionQ(
             prof.nx - 1,
             prof.spaces,
             dt,
+            prev_slr_flux,
             slr_flux,
-            next_slr_flux,
-            temps[:, it - 1],
+            prev_temp,
             prof.inertia,
             prof.rho_cp,
             prof.eps,
             0,
             0,
         )
+        prev_slr_flux = slr_flux
 
     print(f"time (days) = {times[-1]/86400}")
 
 
-idx = -1
-fig, ax = plt.subplots()
-ax.plot(prof.spaces, temps[:, idx])
-plt.show()
+# Rau = 1.52
+# decl = 0
+# lat = 5 * np.pi / 180
+# HA = 10
+# time = dt
+# # Compute
+# HA = 2 * np.pi * ((time / period) % 1.0)
+# flux = flux_noatm(Rau, decl, lat, HA)
+# print(f"time = {time}")
+# print(f"lat = {lat}")
+# print(f"HA = {HA}")
+# print(f"flux = {flux}")
+
+# idx = -1
+# fig, ax = plt.subplots()
+# ax.plot(prof.spaces, temps[:, idx])
+# plt.show()
