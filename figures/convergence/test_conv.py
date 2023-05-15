@@ -2,6 +2,7 @@ import numpy as np
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 
+from multiheats.solvers import ImplicitSolver
 from conductionCrankQ import conductionQ, flux_noatm
 
 
@@ -71,8 +72,8 @@ for isp, step in enumerate(steps):
     dic_times[step] = times
     dic_temps[step] = temps
 
-np.save("dic_times", dic_times)
-np.save("dic_temps", dic_temps)
+# np.save("dic_times", dic_times)
+# np.save("dic_temps", dic_temps)
 
 # idx = -1
 # fig, ax = plt.subplots()
