@@ -1,0 +1,30 @@
+[project]
+name = "multiheats"
+version = "0.402"
+description = "MultIHeaTS is a Multi-layered Implicit Heat Transfer Solver."
+homepage = "https://gitlab.dsi.universite-paris-saclay.fr/cyril.mergny/multiheats/"
+
+[tool.poetry]
+name = "multiheats"
+version = "0.402"
+description = "MultIHeaTS is a Multi-layered Implicit Heat Transfer Solver."
+authors = ["Cyril Mergny <cyril.mergny@universite-paris-saclay.fr>"]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+numpy = "^1.21.0"
+matplotlib = "^3.4.0"
+scipy = "^1.7.0"
+pandas = "^1.2.0"
+tqdm = "^4.61.0"
+xlrd = "^2.0.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.0"
+ipython = "^7.25.0"
+jupyter = "^1.0.0"
+
