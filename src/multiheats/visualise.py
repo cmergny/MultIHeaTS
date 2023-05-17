@@ -61,9 +61,9 @@ def animate_function(spaces, temps, interf=0, step=1, frames=None, save=False):
 
     ax.set_ylabel("Temperature (K)")
     ax.set_xlabel("Depth (m)")
-    ax.set_xlim(spaces.min(), spaces.max())
     ax.set_ylim(temps.min(), temps.max())
-    ax.set_xscale("symlog")
+    ax.set_xlim([spaces[1] / 10, spaces.max()])
+    ax.set_xscale("log")
     anim = FuncAnimation(fig, animate, frames=frames, interval=50, repeat=False)
     plt.title("Temperature Evolution")
     plt.legend()

@@ -142,9 +142,9 @@ def run_solver(name, frame_jump=1):
         if name == "Implicit":
             solver = ImplicitSolver(prof)
             prof.temp = solver.implicit_scheme(dt, slr_flux[it])
-        if name == "CN" and it < nt - 1:
-            solver = CrankNicolson(prof)
-            prof.temp = solver.CN_scheme(dt, -slr_flux[it], -slr_flux[it + 1])
+        # if name == "CN" and it < nt - 1:
+        #     solver = CrankNicolson(prof)
+        #     prof.temp = solver.CN_scheme(dt, -slr_flux[it], -slr_flux[it + 1])
         temps[:, it] = prof.temp
 
     duration = (time.time() - start) / nt
@@ -153,7 +153,6 @@ def run_solver(name, frame_jump=1):
 
 
 def test_spencer(threshold=1.0):
-
     spencer = SpencerModel()
     solv_temps, _, _ = run_solver("Implicit", frame_jump=1)
 
@@ -165,99 +164,7 @@ def test_spencer(threshold=1.0):
     assert err.max() < threshold
 
 
-def compare_solvers(frame_jump):
-    """Compare Explicit (Spencer), Implicit and CrankNicolson"""
-
-    spencer = SpencerModel()
-    imp_temps, imp_spaces, imp_dur = run_solver("Implicit", frame_jump)
-    cn_temps, cn_spaces, cn_dur = run_solver("CN", frame_jump)
-
-    pos = np.arange(0, imp_temps.shape[0])
-    pos = np.delete(pos, 1)
-    imp_err = abs(spencer.temps[:, ::frame_jump] - imp_temps[pos, :])
-    cn_err = abs(spencer.temps[:, ::frame_jump] - cn_temps[pos, :])
-
-    return imp_err, cn_err, imp_dur, cn_dur
-
-
-def compare_errors():
-
-    jumps = [2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000]
-    imp_means = np.zeros(len(jumps))
-    cn_means = np.zeros(len(jumps))
-    imp_maxs = np.zeros(len(jumps))
-    cn_maxs = np.zeros(len(jumps))
-    imp_duration = np.zeros(len(jumps))
-    cn_duration = np.zeros(len(jumps))
-
-    for i, frame_jump in enumerate(jumps):
-        imp_err, cn_err, imp_dur, cn_dur = compare_solvers(frame_jump)
-        imp_means[i] = imp_err.mean()
-        imp_maxs[i] = imp_err.max()
-        cn_means[i] = cn_err.mean()
-        cn_maxs[i] = cn_err.max()
-        imp_duration[i] = imp_dur
-        cn_duration[i] = cn_dur
-
-    day_frac = np.array(jumps) / 10e3
-
-    fig, ax = plt.subplots()
-    ax.plot(jumps, imp_maxs, "-", marker="x", label="IM max")
-    ax.plot(jumps, cn_maxs, "-", marker="x", label="CN max")
-    ax.set_xlabel("Frames Jumped")
-    ax.set_ylabel("Max Error")
-    ax.set_yscale("log")
-    ax.set_xscale("log")
-    plt.legend()
-    plt.show()
-
-    fig, ax = plt.subplots()
-    ax.plot(jumps, imp_means, "-", marker="x", label="IM max")
-    ax.plot(jumps, cn_means, "-", marker="x", label="CN max")
-    ax.set_xlabel("Frames Jumped")
-    ax.set_ylabel("Mean Error")
-    ax.set_yscale("log")
-    ax.set_xscale("log")
-    # ax.set_ylim(1e-2, 1)
-    plt.legend()
-    plt.show()
-
-    fig, ax = plt.subplots(figsize=(6, 4))
-    ax.plot(day_frac, imp_duration, marker="x", label="Implicit")
-    ax.plot(day_frac, cn_duration, marker="x", label="CN")
-    ax.set_xlabel("Fraction of day (timestep).")
-    ax.set_ylabel("Computation Time per iteration (s)")
-    ax.set_xscale("log")
-    plt.legend()
-    plt.plot()
-
-    # print("imp ", imp_err.mean(), imp_err.max())
-    # print("CN ", cn_err.mean(), cn_err.max())
-
-    # imp_spaces[0] = 1e-2
-    # cn_spaces[0] = 1e-2
-    # spencer.spaces[0] = 1e-2
-    # chosen_curves = [30]
-    # fig, ax = plt.subplots()
-    # for it in chosen_curves:
-    #     ax.plot(imp_spaces, imp_temps[:, it], "-", color="red", label="Implicit")
-    #     ax.plot(cn_spaces, cn_temps[:, it], "-", color="green", label="CN")
-    #     ax.plot(
-    #         spencer.spaces,
-    #         spencer.temps[:, int(it * frame_jump)],
-    #         "-",
-    #         color="blue",
-    #         label="Spencer",
-    #     )
-    # ax.set_xscale("log")
-    # ax.set_xlabel("Depth (m)")
-    # ax.set_ylabel("Temperature (K)")
-    # # ax.set_ylim(30, 150)
-    # # ax.set_xlim(1e-2, 2)
-    # plt.legend()
-    # plt.show()
-
-
 if __name__ == "__main__":
     # test_spencer()
-    a = 2
+    print("Not a main program")
+    test_spencer()

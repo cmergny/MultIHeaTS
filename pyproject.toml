@@ -27,4 +27,5 @@ xlrd = "^2.0.0"
 pytest = "^6.2.0"
 ipython = "^7.25.0"
 jupyter = "^1.0.0"
+line_profiler = "^4.0.0"
 

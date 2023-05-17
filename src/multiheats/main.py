@@ -31,7 +31,6 @@ import multiheats.visualise as vis
 
 
 if __name__ == "__main__":
-
     print("Creating surface profile...")
     prof = Profile()
     # prof.bilayer_prof()
@@ -50,8 +49,9 @@ if __name__ == "__main__":
     solar_fluxs = -surf.get_solar_fluxs(prof.lat, prof.long)
 
     solver = ImplicitSolver(prof)
+    solver.upBCmethod = "Leyrat"
     print("Computing temperature evolution...")
-    for i in range(25):
+    for i in range(1):
         for it in tqdm(range(times.shape[0] - 1)):
             prof.temp = solver.implicit_scheme(dts[it], solar_fluxs[it])
             temps[it] = prof.temp
