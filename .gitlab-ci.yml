@@ -13,8 +13,8 @@ test:
   before_script:
     - python -m venv mheats
     - source mheats/bin/activate
-    - pip install --upgrade pip
-    - pip install -e .
+    - pip install poetry --upgrade pip
+    - poetry install --with dev
 
   # Run the tests using pytest
   script:
