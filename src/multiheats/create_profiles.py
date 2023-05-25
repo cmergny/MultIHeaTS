@@ -15,7 +15,7 @@ class Profile:
     """
 
     def __init__(self) -> None:
-        self.nx = 500
+        self.nx = 60
         self.lat = 0
         self.long = 0
         self.eps = 0.94  # Emissivity
