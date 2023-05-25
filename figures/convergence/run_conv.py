@@ -11,12 +11,12 @@ class FakeProfile:
 
     def __init__(self):
         """docstring for __init__"""
-        self.nx = 101
+        self.nx = 501
         self.length = 2
         # Remember that z[2]=3*z[1]
         self.spaces = np.linspace(0, self.length, self.nx)
         self.spaces[1] = self.spaces[2] / 3
-        self.inertia = np.full(self.nx, 200)
+        self.inertia = np.full(self.nx, 1)
         self.eps = 1
         self.alb = 0.015
 
@@ -36,7 +36,7 @@ Rau = 9.51
 decl = 0
 
 # Steps
-coef = np.arange(0, 8)
+coef = np.arange(6, 8)
 steps = 2 ** (12 - coef)
 dts = period / steps
 # Time
@@ -52,7 +52,7 @@ for isp, step in enumerate(steps):
     times = np.zeros(nt)
     temps = np.zeros((prof.nx, nt))
 
-    # prev_temp = np.full(prof.nx, 90.0)  # Schorghofer
+    prev_temp = np.full(prof.nx, 90.0)  # Schorghofer
     prof.temp = np.full(prof.nx, 90.0)  # Me
     prev_slr_flux = (1 - prof.alb) * flux_noatm(Rau, decl, lat, HA=0)
 
@@ -63,23 +63,24 @@ for isp, step in enumerate(steps):
         slr_flux = (1 - prof.alb) * flux_noatm(Rau, decl, lat, HA)
 
         solver = ImplicitSolver(prof)
+        # solver.upBCmethod = "None"
         prof.temp = solver.implicit_scheme(dt, -slr_flux)
         temps[:, it] = prof.temp
 
-        # temps[:, it] = conductionQ(
-        #     prof.nx - 1,
-        #     prof.spaces,
-        #     dt,
-        #     prev_slr_flux,
-        #     slr_flux,
-        #     prev_temp,
-        #     prof.inertia,
-        #     prof.rho_cp,
-        #     prof.eps,
-        #     0,
-        #     0,
-        # )
-        # prev_slr_flux = slr_flux
+        temps[:, it] = conductionQ(
+            prof.nx - 1,
+            prof.spaces,
+            dt,
+            prev_slr_flux,
+            slr_flux,
+            prev_temp,
+            prof.inertia,
+            prof.rho_cp,
+            prof.eps,
+            0,
+            0,
+        )
+        prev_slr_flux = slr_flux
 
     # Save Everything
     dic_times[step] = times
