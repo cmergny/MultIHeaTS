@@ -1,0 +1,38 @@
+Creating surface profile...
+Computing temperature evolution...
+Visualisation
+Wrote profile results to main.py.lprof
+Timer unit: 1e-06 s
+
+Total time: 1.03034 s
+File: /home/cmergny/Work/PhD/multiheats/src/multiheats/solvers.py
+Function: implicit_scheme at line 32
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    32                                               @profile
+    33                                               def implicit_scheme(self, dt, solar_flux):
+    34                                                   """
+    35                                                   Solves the discretized heat equation implicitely
+    36                                                   with Euler Backward Scheme.
+    37                                                   Input: prev_temp at time it-1
+    38                                                   Returns: new_temp at time it np.array with shape=(nx)
+    39                                                   """
+    40                                           
+    41     27399     180728.8      6.6     17.5          rcoef = dt / self.rho / self.cp
+    42                                           
+    43     27398      11066.6      0.4      1.1          if self.need_update:
+    44         1       1930.8   1930.8      0.2              self.mat = self.update_matrix(self.nx, self.cond, self.dx, rcoef)
+    45         1       5950.5   5950.5      0.6              self.inv_mat = np.linalg.inv(self.mat)
+    46                                           
+    47                                                   # Set BC
+    48     27399     117755.7      4.3     11.4          source = self.temp + rcoef * self.qheat
+    49                                           
+    50     27399     307693.3     11.2     29.9          s0, sN = self.set_flux_BC(rcoef, solar_flux)
+    51     27399      12284.6      0.4      1.2          source[0] = s0
+    52     27399      10064.1      0.4      1.0          source[-1] = sN
+    53                                           
+    54     27399     373708.1     13.6     36.3          new_temp = np.matmul(self.inv_mat, source)
+    55                                           
+    56     27399       9153.3      0.3      0.9          return new_temp
+

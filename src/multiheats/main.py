@@ -49,7 +49,7 @@ if __name__ == "__main__":
     solar_fluxs = -surf.get_solar_fluxs(prof.lat, prof.long)
 
     solver = ImplicitSolver(prof)
-    solver.upBCmethod = "Leyrat"
+    solver.upBCmethod = "Old"
     print("Computing temperature evolution...")
     for i in range(1):
         for it in tqdm(range(times.shape[0] - 1)):
@@ -63,8 +63,7 @@ if __name__ == "__main__":
     # vis.use_latex()
     # vis.plot_temp(prof.spaces, temps, it, interf=prof.interf)
     # vis.plot_multi_temp(prof.spaces, temps, n_curves=10)
-    anim = vis.animate_function(
-        prof.spaces, temps, interf=prof.interf, step=5, frames=400, save=False
-    )
-    # plt.savefig("hey.png")
-    plt.show()
+    # anim = vis.animate_function(
+    #     prof.spaces, temps, interf=prof.interf, step=5, frames=400, save=False
+    # )
+    # plt.show()

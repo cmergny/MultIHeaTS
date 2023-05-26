@@ -1,0 +1,50 @@
+Wrote profile results to main.py.lprof
+Timer unit: 1e-06 s
+
+Creating surface profile...
+Computing temperature evolution...
+Visualisation
+Wrote profile results to main.py.lprof
+Timer unit: 1e-06 s
+
+Total time: 1.33955 s
+File: /home/cmergny/Work/PhD/multiheats/src/multiheats/solvers.py
+Function: implicit_scheme at line 32
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    32                                               @profile
+    33                                               def implicit_scheme(self, dt, solar_flux):
+    34                                                   """
+    35                                                   Solves the discretized heat equation implicitely
+    36                                                   with Euler Backward Scheme.
+    37                                                   Input: prev_temp at time it-1
+    38                                                   Returns: new_temp at time it np.array with shape=(nx)
+    39                                                   """
+    40                                           
+    41     27399     125431.8      4.6      9.4          rcoef = dt / self.rho / self.cp
+    42                                           
+    43     27398       6761.2      0.2      0.5          if self.need_update:
+    44         1         60.9     60.9      0.0              self.matrix = self.update_matrix(self.nx, self.cond, self.dx, rcoef)
+    45                                           
+    46                                                   # Set BC
+    47     27399      74967.7      2.7      5.6          source = self.temp + rcoef * self.qheat
+    48                                           
+    49     27399     306791.3     11.2     22.9          s0, sN, b0, c0, aN, bN = self.set_flux_BC(rcoef, solar_flux)
+    50     27399       8538.1      0.3      0.6          source[0] = s0
+    51     27399       5896.9      0.2      0.4          source[-1] = sN
+    52     27399       7651.4      0.3      0.6          self.matrix[1, 0] = b0
+    53     27399       7131.4      0.3      0.5          self.matrix[1, -1] = bN
+    54     27399       6602.6      0.2      0.5          self.matrix[0, 1] = c0
+    55     27399       6466.5      0.2      0.5          self.matrix[2, -2] = aN
+    56                                           
+    57     27399     759604.3     27.7     56.7          new_temp = scipy.linalg.solve_banded(
+    58     27399       3755.0      0.1      0.3              (1, 1),
+    59     27399       4837.2      0.2      0.4              self.matrix,
+    60     27399       3631.4      0.1      0.3              source,
+    61     27399       3600.1      0.1      0.3              check_finite=False,
+    62     27399       3627.4      0.1      0.3              overwrite_b=True,
+    63                                                   )
+    64                                           
+    65     27399       4198.8      0.2      0.3          return new_temp
+

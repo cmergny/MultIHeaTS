@@ -1,0 +1,44 @@
+Creating surface profile...
+Computing temperature evolution...
+Visualisation
+Wrote profile results to main.py.lprof
+Timer unit: 1e-06 s
+
+Creating surface profile...
+Computing temperature evolution...
+Visualisation
+Wrote profile results to main.py.lprof
+Timer unit: 1e-06 s
+
+Total time: 1.04615 s
+File: /home/cmergny/Work/PhD/multiheats/src/multiheats/solvers.py
+Function: implicit_scheme at line 32
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    32                                               @profile
+    33                                               def implicit_scheme(self, dt, solar_flux):
+    34                                                   """
+    35                                                   Solves the discretized heat equation implicitely
+    36                                                   with Euler Backward Scheme.
+    37                                                   Input: prev_temp at time it-1
+    38                                                   Returns: new_temp at time it np.array with shape=(nx)
+    39                                                   """
+    40                                           
+    41     27399     178339.6      6.5     17.0          rcoef = dt / self.rho / self.cp
+    42                                           
+    43     27398      10729.9      0.4      1.0          if self.need_update:
+    44         1       1891.3   1891.3      0.2              self.mat = self.update_matrix(self.nx, self.cond, self.dx, rcoef)
+    45         1       6160.0   6160.0      0.6              self.inv_mat = np.linalg.inv(self.mat)
+    46                                           
+    47                                                   # Set BC
+    48     27399     116977.0      4.3     11.2          source = self.temp + rcoef * self.qheat
+    49                                           
+    50     27399     304533.7     11.1     29.1          s0, sN = self.set_flux_BC(rcoef, solar_flux)
+    51     27399      11770.7      0.4      1.1          source[0] = s0
+    52     27399       9783.2      0.4      0.9          source[-1] = sN
+    53                                           
+    54     27399     398156.7     14.5     38.1          new_temp = np.dot(self.inv_mat, source)
+    55                                           
+    56     27399       7804.7      0.3      0.7          return new_temp
+

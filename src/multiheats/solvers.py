@@ -27,7 +27,7 @@ class ImplicitSolver:
         self.nx = prof.spaces.shape[0]
         self.dx = np.diff(prof.spaces)
         self.need_update = True  # Update the matrix
-        self.upBCmethod = "Leyrat"  # Correction Upper BC
+        self.upBCmethod = "Old"  # Correction Upper BC
 
     def implicit_scheme(self, dt, solar_flux):
         """
@@ -40,26 +40,17 @@ class ImplicitSolver:
         rcoef = dt / self.rho / self.cp
 
         if self.need_update:
-            self.matrix = self.update_matrix(self.nx, self.cond, self.dx, rcoef)
+            self.mat = self.update_matrix(self.nx, self.cond, self.dx, rcoef)
+            self.inv_mat = np.linalg.inv(self.mat)
 
         # Set BC
         source = self.temp + rcoef * self.qheat
 
-        s0, sN, b0, c0, aN, bN = self.set_flux_BC(rcoef, solar_flux)
+        s0, sN = self.set_flux_BC(rcoef, solar_flux)
         source[0] = s0
         source[-1] = sN
-        self.matrix[1, 0] = b0
-        self.matrix[1, -1] = bN
-        self.matrix[0, 1] = c0
-        self.matrix[2, -2] = aN
 
-        new_temp = scipy.linalg.solve_banded(
-            (1, 1),
-            self.matrix,
-            source,
-            check_finite=False,
-            overwrite_b=True,
-        )
+        new_temp = np.matmul(self.inv_mat, source)
 
         return new_temp
 
@@ -71,7 +62,7 @@ class ImplicitSolver:
 
         self.bc_bottom = 0
         s0_corr, b0_corr = self.apply_upBCmethod(
-            self.upBCmethod, rcoef, solar_flux
+            self.upBCmethod, rcoef
         )  # Correction terms
 
         s0 = self.temp[0] + rcoef[0] * (
@@ -86,16 +77,9 @@ class ImplicitSolver:
             + self.qheat[-1]
         )
 
-        coef_top = rcoef[0] * self.cond[0] / self.dx[0] ** 2
-        coef_bot = rcoef[-1] * self.cond[-1] / self.dx[-1] ** 2
+        return s0, sN
 
-        b0 = 1 + 2 * coef_top + b0_corr  # b0
-        c0 = -2 * coef_top  # c0
-        aN = -2 * coef_bot  # aN
-        bN = 1 + 2 * coef_bot  # bN
-        return s0, sN, b0, c0, aN, bN
-
-    def apply_upBCmethod(self, method, rcoef, solar_flux):
+    def apply_upBCmethod(self, method, rcoef):
         """
         Add corrected terms for the upper boundary conditions.
         Following C. Leyrat's solver (Probably same as Schorghofer).
@@ -140,4 +124,24 @@ class ImplicitSolver:
         matrix[0, 2:] = (
             -rcoef[1:-1] / dx[1:] * (dkn / 2 + 2 * cond[1:-1] / (dx[1:] + dx[:-1]))
         )
-        return matrix
+
+        # BC values
+        coef_top = rcoef[0] * self.cond[0] / self.dx[0] ** 2
+        coef_bot = rcoef[-1] * self.cond[-1] / self.dx[-1] ** 2
+        b0 = 1 + 2 * coef_top  # + b0_corr  # b0
+        c0 = -2 * coef_top  # c0
+        aN = -2 * coef_bot  # aN
+        bN = 1 + 2 * coef_bot  # bN
+        # Apply to matric
+        matrix[1, 0] = b0
+        matrix[1, -1] = bN
+        matrix[0, 1] = c0
+        matrix[2, -2] = aN
+
+        # Real matrice
+        mat = (
+            np.diag(matrix[2, :-1], k=-1)
+            + np.diag(matrix[1])
+            + np.diag(matrix[0, 1:], k=1)
+        )
+        return mat

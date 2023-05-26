@@ -15,7 +15,7 @@ class Profile:
     """
 
     def __init__(self) -> None:
-        self.nx = 60
+        self.nx = 100
         self.lat = 0
         self.long = 0
         self.eps = 0.94  # Emissivity
@@ -36,7 +36,7 @@ class Profile:
             rho - Density (kg,m-3)
             cp - Heat capacity (J.kg-1.K-1)
         """
-        cond = 0.0001
+        cond = 0.01
         rho = 917.0
         cp = 839.0
         thermal_skin = self.thermal_skin(cond, rho, cp)
