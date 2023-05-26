@@ -18,7 +18,7 @@ __email__ = "cyril.mergny@universite-paris-saclay.fr"
 
 ### IMPORTS
 
-import numpy as np
+import cupy as np
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 

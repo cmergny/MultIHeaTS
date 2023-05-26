@@ -3,7 +3,9 @@ Implicit solver of the heat equation.
 """
 
 ### IMPORTS
-import numpy as np
+import cupy as np
+
+# import cupyx.scipy as scipy
 import scipy
 
 import multiheats.constants as cst
@@ -53,13 +55,14 @@ class ImplicitSolver:
         self.matrix[0, 1] = c0
         self.matrix[2, -2] = aN
 
-        new_temp = scipy.linalg.solve_banded(
-            (1, 1),
-            self.matrix,
-            source,
-            check_finite=False,
-            overwrite_b=True,
-        )
+        # new_temp = scipy.linalg.solve_banded(
+        #     (1, 1),
+        #     self.matrix,
+        #     source,
+        #     check_finite=False,
+        #     overwrite_b=True,
+        # )
+        new_temp = self.temp
 
         return new_temp
 

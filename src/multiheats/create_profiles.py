@@ -4,7 +4,7 @@ Manually create a surface profile to suit your needs.
 """
 
 ### IMPORTS
-import numpy as np
+import cupy as np
 
 
 class Profile:
@@ -15,7 +15,7 @@ class Profile:
     """
 
     def __init__(self) -> None:
-        self.nx = 60
+        self.nx = 500
         self.lat = 0
         self.long = 0
         self.eps = 0.94  # Emissivity
