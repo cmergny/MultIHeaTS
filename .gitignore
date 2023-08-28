@@ -2,6 +2,7 @@ figures/compare_solvers_plots/*
 figures/convergence/*.npy
 figures/convergence/repro/*.npy
 figures/animations/*
+figures/eclipse/*
 latex/*
 src/multiheats/main.py.lprof
 data/save_tests/*
