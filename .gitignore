@@ -5,6 +5,7 @@ latex/*
 src/multiheats/main.py.lprof
 data/save_tests/*
 data/test_parquet.py
+src/multiheats/profiling/
 
 
 ### GITIGNORE TEMPLATE

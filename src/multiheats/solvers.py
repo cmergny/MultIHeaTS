@@ -71,7 +71,7 @@ class ImplicitSolver:
 
         self.bc_bottom = 0
         s0_corr, b0_corr = self.apply_upBCmethod(
-            self.upBCmethod, rcoef, solar_flux
+            self.upBCmethod, rcoef
         )  # Correction terms
 
         s0 = self.temp[0] + rcoef[0] * (
@@ -95,7 +95,7 @@ class ImplicitSolver:
         bN = 1 + 2 * coef_bot  # bN
         return s0, sN, b0, c0, aN, bN
 
-    def apply_upBCmethod(self, method, rcoef, solar_flux):
+    def apply_upBCmethod(self, method, rcoef):
         """
         Add corrected terms for the upper boundary conditions.
         Following C. Leyrat's solver (Probably same as Schorghofer).
