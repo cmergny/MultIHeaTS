@@ -6,7 +6,7 @@ examples/*.png
 examples/example_2.py
 examples/import_data.py
 
-src/multiheats/profiling/
+src/multiheats/profiling/*
 *.py.lprof
 
 
