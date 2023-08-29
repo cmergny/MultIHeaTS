@@ -14,21 +14,21 @@ class Profile:
 
     """
 
-    def __init__(self) -> None:
-        self.nx = 20
-        self.lat = 0
-        self.long = 0
-        self.eps = 0.94  # Emissivity
-        x0 = 0  # Surface depth (m)
-        xf = 2  # Total depth (m)
+    def __init__(self, nx, eps, xmin, xmax, power=1, lat=None, long=None):
+        """
+        Initialize profile
+        lat/long only necessary when importing data
+        """
+        self.nx = nx  # Nbr of grid points
+        self.eps = eps  # Emissivity
+        # Optional
+        self.qheat = np.full(self.nx, 0)  # Heat source terms
+        self.lat = lat  # Latitude
+        self.long = long  # Longitude
+        # Even or Uneven depths array
+        self.spaces = np.linspace(xmin, xmax ** (1 / power), self.nx) ** (power)
 
-        self.qheat = np.full(self.nx, 0)
-        power = 3
-        spaces = np.linspace(x0, xf ** (1 / power), self.nx)
-        self.spaces = spaces ** (power)
-        # self.spaces = np.linspace(0, xf, self.nx)
-
-    def monolayer_prof(self):
+    def monolayer_prof(self, cond, rho, cp):
         """
         Generate an monolayered surface profile.
         PARAMS:
@@ -36,45 +36,36 @@ class Profile:
             rho - Density (kg,m-3)
             cp - Heat capacity (J.kg-1.K-1)
         """
-        cond = 0.01
-        rho = 917.0
-        cp = 839.0
-        thermal_skin = self.thermal_skin(cond, rho, cp)
-
         self.cond = np.full(self.nx, cond)
         self.rho = np.full(self.nx, rho)
         self.cp = np.full(self.nx, cp)
         self.interf = 0
 
-    def bilayer_prof(self):
+    def bilayer_prof(
+        self,
+        cond_top,
+        rho_top,
+        cp_top,
+        cond_bot,
+        rho_bot,
+        cp_bot,
+        interface,
+        transition=2e-3,
+    ):
         """
         Generate an bilayered surface profile.
         PARAMS:
             interface - in meters, controls the thickness of the top layer. (must be > xf)
             transition - thickness of the smooth transition between the top and bottom layer.
         """
-        # TOP
-        cond_top = 0.01
-        rho_top = 917.0
-        cp_top = 839.0
-        # BOTTOM
-        cond_bot = cond_top / 2
-        rho_bot = rho_top / 2
-        cp_bot = cp_top / 2
-
-        thermal_skin = self.thermal_skin(cond_top, rho_top, cp_top)
-        interface = 2 * thermal_skin  # (m)
-        transition = 2e-3  # (m)
-
         self.cond = bilayer(self.spaces, cond_top, cond_bot, interface, transition)
         self.rho = bilayer(self.spaces, rho_top, rho_bot, interface, transition)
         self.cp = bilayer(self.spaces, cp_top, cp_bot, interface, transition)
         self.interf = interface
 
-    def thermal_skin(self, cond, rho, cp):
+    def thermal_skin(self, cond, rho, cp, diurn_period):
         """delta = (2*alpha/omega)**1/2"""
-        period_day = 79.33 * 86400  # Japet Day
-        omega = 2 * np.pi / period_day
+        omega = 2 * np.pi / diurn_period
         alpha = cond / rho / cp
         self.skin = np.sqrt(2 * alpha / omega)
         return self.skin

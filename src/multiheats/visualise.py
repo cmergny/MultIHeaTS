@@ -23,10 +23,11 @@ def plot_multi_temp(spaces, temps, n_curves=10):
     fig, ax = plt.subplots()
     nt = temps.shape[0]
     for it in range(0, nt, nt // n_curves):
-        ax.plot(spaces, temps[it], label=f"{it}")
-    ax.set_xlabel("x (m)")
+        ax.plot(spaces, temps[it], label=f"it = {it}")
+    ax.set_xlabel("Depth (m)")
     ax.set_ylabel("Temperature (K)")
     # ax.set_xscale("log")
+    plt.title("Multiple Temperature Profiles")
     plt.legend()
     # plt.show()
 

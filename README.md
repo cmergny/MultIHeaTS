@@ -19,7 +19,7 @@ It is an implicit numerical model that simulates and predicts the surface temper
 
 
 <div align="center">
- <img src="examples/temp_evo.gif" width="450" />
+ <img src="temp_evo.gif" width="450" />
 </div>
 
 Showcase of what the solver can output for a bi-layer surface profile on Japet. Note that here the interface is located around 32 cm.
