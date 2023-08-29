@@ -95,74 +95,56 @@ There is an example script that you can run to see what the algorithm ouptut for
 
 ```bash
 cd path_to_multiheats/examples/
-./run_example.sh
+python example_1.py
 ```
 After iterating over all timestep the script should output matplotlib figures.
 
-For more advance usage I recommand executing python directly in the *src* folder:
-
-```bash
-cd path_to_multiheats/src/multiheats/
-python main.py
-```
 
 # Configuration
 
-Currently you need to write you own personal modifications directly in the python scripts. A configuration file may come in later commits.
+I suggest first copying the example_1.py file to use it as a template.
+You can write you own personal modifications directly in the python code of this file.
 
 ### Changing the Simulation Parameters
 
-The latitude, longitude, emissivity of the surface, and the space array can be modified in the *__init__* method of the *Profile* class.
+The albedo, emissivity of the surface, depth array, etc... can be modified in the *__init__* method of the *Profile* class.
 
 ```python
-def __init__(self) -> None:
-    self.nx = 100
-    self.lat = 0
-    self.long = 0
-    self.eps = 0.94  # Emissivity
-    x0 = 0  # Surface depth (m)
-    xf = 10  # Total depth (m)
+nx = 100  # Grid points
+xmin, xmax = 0, 2  # depth limits (m)
+alb = 0.2  # Albedo
+eps = 1.0  # Emissivity
+nday = 200  # Nbr of days
+step_per_day = int(1e2)  # Points per day
+distance = 9.51 * cst.UA  # Distance to sun (m)
+period = 79.3 * cst.EARTH_DAY  # Diurnal period (s)
 
-    power = 4
-    self.qheat = np.full(self.nx, 0)
-    spaces = np.linspace(x0, xf ** (1 / power), self.nx)
-    self.spaces = spaces ** (power)
-    # prof.spaces = np.linspace(0, 2, self.nx)
+prof = Profile(nx, eps, xmin, xmax, power=3)
+# TOP
+cond_top = 0.01
+rho_top = 917.0
+cp_top = 839
+# BOTTOM
+cond_bot = cond_top / 2
+rho_bot = rho_top / 2
+cp_bot = cp_top / 2
+# Interface
+thermal_skin = prof.thermal_skin(cond_top, rho_top, cp_top, period)
+interface = 2 * thermal_skin  # (m)
 ```
-
 
 ### Changing the Surface Profiles
 
 The solver is meant to be working for any type of multi-layered surfaces.
 The surface material property profiles may be changed directly inside the *create_profile.py* python script.
 
-For example to change the values of an homegeneous profile, change the variables *cond*, *rho*, *cp* in the method *monolayer_prof()*
-
-```python
-def monolayer_prof(self):
-    """
-    Generate an monolayered surface profile.
-    PARAMS:
-        cond - Conductivity (W.m-1.K-2)
-        rho - Density (kg,m-3)
-        cp - Heat capacity (J.kg-1.K-1)
-    """
-    cond = 0.01
-    rho = 917.0
-    cp = 839.0
-
-    self.cond = np.full(self.nx, cond)
-    self.rho = np.full(self.nx, rho)
-    self.cp = np.full(self.nx, cp)
-```
-
-The same can be done for the bilayer profile: tweak the parameters in the method *bilayer_prof()*.
-
+For example to change the values of an homegeneous profile, change the arguments *cond*, *rho*, *cp* of the method *monolayer_prof()*
+The same can be done for the bilayer profile: change the arguments of the method *bilayer_prof()*.
 For any types of other exotic profiles (3 layers, etc...), feel free to write you own method in *Profile* class.
 
 ### Changing the Surface Flux
 
-Flux are imported by the *solar_flux.py* module. Currently, the scripts import Japet solar flux and albedos from files in the *data* directory.
+The solar flux can either be imported from data that you own, or created artificially using a truncated cosinus function. 
 
 ### Changing the Boundary Conditions
 
@@ -191,10 +173,6 @@ The solvers is supposed to work with flux or temperature boundary conditions. Al
 ### Changing the Plot
 
 Just modify or write you own functions in the *visualise.py* module.
-
-### Changing the Main
-
-Finally you may change other simulations parameters directly in the *main.py* script. For example, use it to switch between a monolayer or bilayer profile. Or to change the number of timestep used for iterations.
 
 # Contributing
 
