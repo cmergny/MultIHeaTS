@@ -14,7 +14,7 @@ import multiheats.create_fluxs as create_fluxs
 # PARAMETERS
 
 nx = 100  # Grid points
-xmin, xmax = 0, 1  # depth limits (m)
+xmin, xmax = 0, 2  # depth limits (m)
 alb = 0.2  # Albedo
 eps = 1.0  # Emissivity
 nday = 200  # Nbr of days
@@ -26,7 +26,7 @@ prof = Profile(nx, eps, xmin, xmax, power=3)
 # TOP
 cond_top = 0.01
 rho_top = 917.0
-cp_top = 8390
+cp_top = 839
 # BOTTOM
 cond_bot = cond_top / 2
 rho_bot = rho_top / 2
