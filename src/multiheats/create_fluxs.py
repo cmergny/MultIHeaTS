@@ -18,7 +18,8 @@ def fake_slr_flux(alb, times, distance, period):
         / (distance / cst.UA) ** 2
         * np.cos(2 * np.pi * times / period + np.pi)
     )
-    solar_flux[np.where(solar_flux > 0)] = 0
+    if solar_flux > 0:
+        solar_flux = 0
     return solar_flux
 
 
