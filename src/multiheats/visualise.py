@@ -48,11 +48,13 @@ def plot_temp(spaces, temps, it, interf=0):
     # plt.show()
 
 
-def animate_function(spaces, temps, interf=0, step=1, frames=None, save=False):
+def animate_function(
+    spaces, temps, interf=0, step=1, frames=None, save=False, xscale="log"
+):
     """Plot an animation of the temperature with time"""
     frames = temps.shape[0] // step if frames is None else frames
     fig, ax = plt.subplots()
-    (line,) = ax.plot([])
+    (line,) = ax.plot([], "-")
     ax.axvline(x=interf, alpha=0.6, linestyle="--", color="grey", label="Interface")
 
     def animate(it):
@@ -64,7 +66,7 @@ def animate_function(spaces, temps, interf=0, step=1, frames=None, save=False):
     ax.set_xlabel("Depth (m)")
     ax.set_ylim(temps.min(), temps.max())
     ax.set_xlim([spaces[1], spaces.max()])
-    ax.set_xscale("log")
+    ax.set_xscale(xscale)
     anim = FuncAnimation(fig, animate, frames=frames, interval=50, repeat=False)
     plt.title("Temperature Evolution")
     plt.legend()
