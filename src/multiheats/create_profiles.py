@@ -63,10 +63,10 @@ class Profile:
         self.cp = bilayer(self.spaces, cp_top, cp_bot, interface, transition)
         self.interf = interface
 
-    def thermal_skin(self, cond, rho, cp, diurn_period):
+    def thermal_skin(self, period):
         """delta = (2*alpha/omega)**1/2"""
-        omega = 2 * np.pi / diurn_period
-        alpha = cond / rho / cp
+        omega = 2 * np.pi / period
+        alpha = self.cond / self.rho / self.cp
         self.skin = np.sqrt(2 * alpha / omega)
         return self.skin
 
@@ -75,6 +75,9 @@ class Profile:
         dx = np.diff(self.spaces).min()
         alpha = np.min(self.cond / self.rho / self.cp)
         return alpha * dt / dx**2
+
+    def compute_inertia(self):
+        return np.sqrt(self.cond * self.cp * self.rho)
 
 
 def bilayer(x, start, end, inter, transition=1):
