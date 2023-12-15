@@ -54,7 +54,7 @@ def animate_function(
     """Plot an animation of the temperature with time"""
     frames = temps.shape[0] // step if frames is None else frames
     fig, ax = plt.subplots()
-    (line,) = ax.plot([], "-")
+    (line,) = ax.plot([], "-", marker=".")
     ax.axvline(x=interf, alpha=0.6, linestyle="--", color="grey", label="Interface")
 
     def animate(it):
