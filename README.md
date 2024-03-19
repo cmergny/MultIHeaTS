@@ -65,8 +65,8 @@ source mheats/bin/activate
 
 To install the package then you just need to type:
 ```bash
-pip install --upgrade pip
-pip install -e .
+pip install poetry --upgrade pip
+poetry install --with dev
 ```
 
 <details>
