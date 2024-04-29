@@ -77,7 +77,7 @@ class ImplicitSolver:
         s0 = self.temp[0] + rcoef[0] * (
             (self.cond[1] - 3 * self.cond[0])
             / self.dx[0]
-            * (solar_flux / self.cond[0] + s0_corr)
+            * (-solar_flux / self.cond[0] + s0_corr)
             + self.qheat[0]
         )
 
