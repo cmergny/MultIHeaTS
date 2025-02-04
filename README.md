@@ -189,8 +189,7 @@ time.
 
 If you use this code or parts of this code in your work, please cite the following article:
 
-Mergny et al. 2023, [Article Submitted]
-Come back here later for the DOI.
+C. Mergny and F. Schmidt, *MultIHeaTS: A Fast and Stable Thermal Solver for Multilayered Planetary Surfaces*, PSJ, DOI 10.3847/PSJ/ad6d6e, 2024
 
 # License
 
