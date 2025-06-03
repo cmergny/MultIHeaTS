@@ -2,9 +2,19 @@
 
 # MultIHeaTS
 
+
+
 MultIHeaTS is a Multi-layered Implicit Heat Transfer Solver. 
 
+
+<div align="center">
+   <img src="mheats_logo.png" width="150" style="margin-left: 500px;" />
+</div>
+<p>
+
+
 It is an implicit numerical model that simulates and predicts the surface temperature in 1D multi-layered planetary surfaces exposed to solar radiation.
+
 
 [Getting started](#getting-started) •
 [Installation](#installation) •
@@ -62,22 +72,6 @@ Place yourself at the root of the directory and to install the multiheats packag
 pip install poetry --upgrade pip
 poetry install --with dev
 ```
-
-<details>
-  <summary>Click for conda install (Not recommended)</summary>
-
-
-Install the required conda environment :
-
-```bash
-conda env create -f environment.yml
-```
-Please note that the environment.yml file has been deleted in newer versions. It can be found on older commits. Finally you need to make multiheats a python package by typing:
-```bash
-pip install -e .
-```
-</details>
-
 
 # How to use
 Make sure to activate the python environment before executing anything.
@@ -169,7 +163,7 @@ time.
 
 If you use this code or parts of this code in your work, please cite the following article:
 
-C. Mergny and F. Schmidt, *MultIHeaTS: A Fast and Stable Thermal Solver for Multilayered Planetary Surfaces*, PSJ, DOI 10.3847/PSJ/ad6d6e, 2024
+C. Mergny and F. Schmidt, *MultIHeaTS: A Fast and Stable Thermal Solver for Multilayered Planetary Surfaces*, PSJ, DOI [10.3847/PSJ/ad6d6e](https://iopscience.iop.org/article/10.3847/PSJ/ad6d6e), 2024
 
 # License
 
