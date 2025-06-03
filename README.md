@@ -53,17 +53,11 @@ It should return a help message.
 Copy the project localy using git clone:
 
 ```bash
-git clone git@gitlab.dsi.universite-paris-saclay.fr:cyril.mergny/multiheats.git
+git clone git@github.com:cmergny/MultIHeaTS.git
 ```
-then cd to the path of the repositery on you computer and create a venv environment:
+then cd to the path of the repositery on you computer and create a python virtual environment. Feel free to use venv, conda or pyenv. I suggest going for pyenv with python 3.12.
 
-```bash
-cd path_to_multiheats/
-python -m venv mheats
-source mheats/bin/activate
-```
-
-To install the package then you just need to type:
+Place yourself at the root of the directory and to install the multiheats package you just need to type:
 ```bash
 pip install poetry --upgrade pip
 poetry install --with dev
@@ -86,18 +80,14 @@ pip install -e .
 
 
 # How to use
-Make sure to activate the python environment before executing anything:
-```bash
-source mheats/bin/activate
-```
-
+Make sure to activate the python environment before executing anything.
 There is an example script that you can run to see what the algorithm ouptut for a pre-defined profile.
 
 ```bash
 cd path_to_multiheats/examples/
 python example_1.py
 ```
-After iterating over all timestep the script should output matplotlib figures.
+After iterating over all timestep the script should output a matplotlib figure and an animation.
 
 
 # Configuration
@@ -107,9 +97,10 @@ You can write you own personal modifications directly in the python code of this
 
 ### Changing the Simulation Parameters
 
-The albedo, emissivity of the surface, depth array, etc... can be modified in the *__init__* method of the *Profile* class.
+The albedo, emissivity of the surface, depth array, etc... can be modified as shown in the examples/example_1.py file.
 
 ```python
+# PARAMETERS
 nx = 100  # Grid points
 xmin, xmax = 0, 2  # depth limits (m)
 alb = 0.2  # Albedo
@@ -119,7 +110,6 @@ step_per_day = int(1e2)  # Points per day
 distance = 9.51 * cst.UA  # Distance to sun (m)
 period = 79.3 * cst.EARTH_DAY  # Diurnal period (s)
 
-prof = Profile(nx, eps, xmin, xmax, power=3)
 # TOP
 cond_top = 0.01
 rho_top = 917.0
@@ -127,10 +117,6 @@ cp_top = 839
 # BOTTOM
 cond_bot = cond_top / 2
 rho_bot = rho_top / 2
-cp_bot = cp_top / 2
-# Interface
-thermal_skin = prof.thermal_skin(cond_top, rho_top, cp_top, period)
-interface = 2 * thermal_skin  # (m)
 ```
 
 ### Changing the Surface Profiles
@@ -148,22 +134,16 @@ The solar flux can either be imported from data that you own, or created artific
 
 ### Changing the Boundary Conditions
 
-I would not recommend tweaking with the *solvers.py* module unless you know what you are doing. Anyway, the top and bottom boundary conditions may be change in the *set_flux_BC()* method.
+I would not recommend tweaking with the *solvers.py* module unless you know what you are doing. Anyway, the top and bottom boundary conditions may be change in the *set_flux_BC()* method (see bc_bottom var).
 
 ```python
-def set_flux_BC(self, matrice, source, dt):
-    """
-    Set boundary conditions for implicit Euler Scheme
-    Imposed flux or imposed temperature possible.
-    """
-    rcoef = dt / self.rho / self.cp
-    cond = self.cond
+    def set_flux_BC(self, rcoef, solar_flux):
+        """
+        Set boundary conditions for implicit Euler Scheme
+        Imposed flux or imposed temperature possible.
+        """
 
-    # Set Boundary conditions
-    bc_top = self.solar_flux / cond[0]
-    bc_top += self.eps * cst.SIGMA / self.cond[0] * self.temp[0] ** 4
-    self.bc_top = bc_top
-    bc_bottom = 0
+        self.bc_bottom = 0
     ...
 ```
 For example to add a radioactive thermal flux coming from the planet interior change bc_bottom to the flux' value.
