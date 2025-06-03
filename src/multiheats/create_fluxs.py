@@ -33,4 +33,4 @@ def fake_slr_flux(alb, times, distance, period):
     )
     if solar_flux > 0:
         solar_flux = 0
-    return solar_flux
+    return -solar_flux  # negative sign
