@@ -1,4 +1,4 @@
-""" 
+"""
 Manually create a surface profile to suit your needs.
 (i.e.) spaces, times, density, thermic capacity, conductivity, heat source.
 """
