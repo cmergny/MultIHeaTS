@@ -1,3 +1,4 @@
+# Compute thermal properties of porous ice
 import numpy as np
 
 
