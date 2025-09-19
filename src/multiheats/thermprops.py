@@ -12,7 +12,7 @@ def get_cond_bulk(temp):
 
 def get_cond_porous(rg, rb, phi, cond_bulk):
     """
-    Conductivity of porous ice by my simple model.
+    Conductivity of porous ice (Mergny2024, LunaIcy).
     rb must be < to rg.
     """
     cond = cond_bulk * (1 - phi) * rb / rg

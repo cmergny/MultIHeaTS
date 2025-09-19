@@ -3,3 +3,4 @@ from . import visualise
 from . import create_profiles
 from . import constants
 from . import solvers
+from . import thermprops

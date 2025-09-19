@@ -3,7 +3,7 @@ Manually create a surface profile to suit your needs.
 (i.e.) spaces, times, density, thermic capacity, conductivity, heat source.
 """
 
-### IMPORTS
+# IMPORTS
 import numpy as np
 
 
@@ -23,10 +23,10 @@ class Profile:
         self.eps = eps  # Emissivity
         # Optional
         self.qheat = np.full(self.nx, 0)  # Heat source terms
-        self.lat = lat  # Latitude
         self.long = long  # Longitude
         # Even or Uneven depths array
-        self.spaces = np.linspace(xmin, xmax ** (1 / power), self.nx) ** (power)
+        self.spaces = np.linspace(
+            xmin, xmax ** (1 / power), self.nx) ** (power)
 
     def monolayer_prof(self, cond, rho, cp):
         """
@@ -58,8 +58,10 @@ class Profile:
             interface - in meters, controls the thickness of the top layer. (must be > xf)
             transition - thickness of the smooth transition between the top and bottom layer.
         """
-        self.cond = bilayer(self.spaces, cond_top, cond_bot, interface, transition)
-        self.rho = bilayer(self.spaces, rho_top, rho_bot, interface, transition)
+        self.cond = bilayer(self.spaces, cond_top,
+                            cond_bot, interface, transition)
+        self.rho = bilayer(self.spaces, rho_top, rho_bot,
+                           interface, transition)
         self.cp = bilayer(self.spaces, cp_top, cp_bot, interface, transition)
         self.interf = interface
 

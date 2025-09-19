@@ -2,13 +2,13 @@
 Implicit solver of the heat equation.
 """
 
-### IMPORTS
+# IMPORTS
 import numpy as np
 import scipy
 
 import multiheats.constants as cst
 
-### CLASS
+# CLASS
 
 
 class ImplicitSolver:
@@ -40,7 +40,8 @@ class ImplicitSolver:
         rcoef = dt / self.rho / self.cp
 
         if self.need_update:
-            self.matrix = self.update_matrix(self.nx, self.cond, self.dx, rcoef)
+            self.matrix = self.update_matrix(
+                self.nx, self.cond, self.dx, rcoef)
 
         # Set BC
         source = self.temp + rcoef * self.qheat
@@ -98,8 +99,8 @@ class ImplicitSolver:
     def apply_upBCmethod(self, method, rcoef):
         """
         Add corrected terms for the upper boundary conditions.
-        Following C. Leyrat's solver (Probably same as Schorghofer).
-        If not uses our standard BC (Mergny et al 2023), may cause instabilities.
+        Following C. Leyrat's solver.
+        If not uses our standard BC (Mergny et al 2023), faster but less stable.
         """
         if method == "Leyrat":
             s0_corr = (
@@ -130,7 +131,8 @@ class ImplicitSolver:
         )
         # an
         matrix[2, :-2] = (
-            -rcoef[1:-1] / dx[:-1] * (-dkn / 2 + 2 * cond[1:-1] / (dx[1:] + dx[:-1]))
+            -rcoef[1:-1] / dx[:-1] *
+            (-dkn / 2 + 2 * cond[1:-1] / (dx[1:] + dx[:-1]))
         )
         # bn
         matrix[1, 1:-1] = 1 - rcoef[1:-1] / (dx[1:] * dx[:-1]) * (
@@ -138,6 +140,7 @@ class ImplicitSolver:
         )
         # cn
         matrix[0, 2:] = (
-            -rcoef[1:-1] / dx[1:] * (dkn / 2 + 2 * cond[1:-1] / (dx[1:] + dx[:-1]))
+            -rcoef[1:-1] / dx[1:] *
+            (dkn / 2 + 2 * cond[1:-1] / (dx[1:] + dx[:-1]))
         )
         return matrix
