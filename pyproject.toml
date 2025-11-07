@@ -1,11 +1,11 @@
 [project]
 name = "multiheats"
-version = "1.0"
+version = "1.2"
 description = "MultIHeaTS is a Multi-layered Implicit Heat Transfer Solver."
 
 [tool.poetry]
 name = "multiheats"
-version = "1.0"
+version = "1.2"
 description = "MultIHeaTS is a Multi-layered Implicit Heat Transfer Solver."
 authors = ["Cyril Mergny <cyril.mergny@universite-paris-saclay.fr>"]
 
