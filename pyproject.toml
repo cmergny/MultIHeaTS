@@ -2,7 +2,6 @@
 name = "multiheats"
 version = "1.0"
 description = "MultIHeaTS is a Multi-layered Implicit Heat Transfer Solver."
-homepage = "https://gitlab.dsi.universite-paris-saclay.fr/cyril.mergny/multiheats/"
 
 [tool.poetry]
 name = "multiheats"
