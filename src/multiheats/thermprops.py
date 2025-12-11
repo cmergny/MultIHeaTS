@@ -12,12 +12,30 @@ def get_cond_bulk(temp):
 
 def get_cond_porous(rg, rb, phi, cond_bulk):
     """
+    Gundlach2011b, from Chan Tien 1973, only valid when rb<<rg?
+    Using Eq 12 where the division by rg comes from Eps*rg in Eq.18
+    Hertz expression for rb does not need to be computed again
+    """
+    # Epsilon Eq. 18 Gund
+    f1 = 5.18e-2  # w/o uncertainties
+    f2 = 5.26  # w/o uncertainties
+    epsilon_r = f1 * np.exp(f2 * (1 - phi))  # Epsilon*rg = adim
+    return cond_bulk * epsilon_r * rb / rg
+
+
+def old_get_cond(rg, rb, phi, cond_bulk):
+    """
     Conductivity of porous ice (Mergny2024, LunaIcy).
     rb must be < to rg.
     """
-    cond = cond_bulk * (1 - phi) * rb / rg
+    return cond_bulk * (1 - phi) * rb / rg
 
-    return cond
+
+def thermal_skin(cond, rho, cp, period):
+    """delta = (2*alpha/omega)**1/2"""
+    omega = 2 * np.pi / period
+    alpha = cond / rho / cp
+    return np.sqrt(2 * alpha / omega)
 
 
 def ice_density_depth(x, phi0, gravity):
@@ -28,8 +46,7 @@ def ice_density_depth(x, phi0, gravity):
     """
     lbd = 4.918407714021047e-06
     rho_bulk = 917  # density pure ice SI (valid for T=0 C only!!)
-    rho = rho_bulk / (1 + (phi0 / (1 - phi0)) *
-                      np.exp(-lbd * rho_bulk * gravity * x))
+    rho = rho_bulk / (1 + (phi0 / (1 - phi0)) * np.exp(-lbd * rho_bulk * gravity * x))
     return rho
 
 

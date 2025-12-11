@@ -1,6 +1,7 @@
 figures/*
 data/*
 latex/*
+notebooks/*
 
 examples/*.png
 examples/example_2.py
