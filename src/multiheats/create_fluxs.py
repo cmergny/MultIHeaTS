@@ -2,7 +2,7 @@ import numpy as np
 import multiheats.constants as cst
 
 
-def guess_ini_temp(period, dt, distance, diurn_per, alb, eps):
+def guess_ini_temp(heliorb_per, dt, distance, diurn_per, alb, eps):
     """
     Compute Equilibrium Temperature after a given period
     of time and a timestep. Based on the equilibrium of
@@ -10,7 +10,7 @@ def guess_ini_temp(period, dt, distance, diurn_per, alb, eps):
     RETURNS:
         temp_eq: float, equilibrium temperature
     """
-    times = np.arange(0, period, dt)  # All iters during the period
+    times = np.arange(0, heliorb_per, dt)  # All iters during the period
     solar_flux = (
         (1 - alb)
         * cst.SOLAR_CST
@@ -22,20 +22,20 @@ def guess_ini_temp(period, dt, distance, diurn_per, alb, eps):
     return temp_eq
 
 
-def fake_slr_flux(alb, times, distance, period):
+def fake_slr_flux(alb, times, distance, diurn_per):
     """
     Use a truncated cosinus function to modelise the solar flux.
     alb - albedo
     times - time array (in s)
     distance - distance from sun (m)
-    period - diurnal period (s)
+    diurn_per - diurnal period (s)
     Note: flux is negative because counted from the surface to the exterior.
     """
     solar_flux = (
         (1 - alb)
         * cst.SOLAR_CST
         / (distance / cst.UA) ** 2
-        * np.cos(2 * np.pi * times / period + np.pi)
+        * np.cos(2 * np.pi * times / diurn_per + np.pi)
     )
     if solar_flux > 0:
         solar_flux = 0

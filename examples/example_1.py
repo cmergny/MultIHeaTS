@@ -11,19 +11,20 @@ import multiheats.constants as cst
 
 # PARAMETERS
 
-nx = 100  # Grid points
-xmin, xmax = 0, 2  # depth limits (m)
-alb = 0.2  # Albedo
-eps = 1.0  # Emissivity
 nday = 200  # Nbr of days
 step_per_day = int(1e2)  # Points per day
 distance = 9.51 * cst.UA  # Distance to sun (m)
-period = 79.3 * cst.EARTH_DAY  # Diurnal period (s)
+diurn_per = 79.3 * cst.EARTH_DAY  # Diurnal period (s)
+
+alb = 0.2  # Albedo
+nx = 100  # Grid points
+xmin, xmax = 0, 2  # depth limits (m)
 
 # TOP
 cond_top = 0.01
 rho_top = 917.0
 cp_top = 839
+eps = 1.0  # Emissivity
 # BOTTOM
 cond_bot = cond_top / 2
 rho_bot = rho_top / 2
@@ -39,20 +40,19 @@ if __name__ == "__main__":
     prof.rho = rho_top
     prof.cp = cp_top
     # Interface
-    thermal_skin = prof.thermal_skin(period)
+    thermal_skin = prof.thermal_skin(diurn_per)
     interface = 2 * thermal_skin  # (m)
     # Create Bilayer Profile
     prof.bilayer_prof(cond_top, rho_top, cp_top, cond_bot, rho_bot, cp_bot, interface)
 
     # Compute time variables
     nt = nday * step_per_day
-    tf = nday * period
+    tf = nday * diurn_per
     times = np.linspace(0, tf, nt)
     dt = np.diff(times).mean()
 
     # Guess Eq. Temp
-    pertimes = np.arange(0, period, dt)  # time over the full cycle
-    temp_eq = mheats.create_fluxs.get_eq_temp(pertimes, distance, period, alb, eps)
+    temp_eq = mheats.create_fluxs.guess_ini_temp(diurn_per, dt, distance, diurn_per, alb, eps)
     # Set Initial Temp
     prof.temp = np.full(prof.nx, temp_eq)
     temps = np.zeros((nt, prof.nx))
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     print("Computing temperature evolution...")
     for it in tqdm(range(times.size)):
         temps[it] = prof.temp
-        slr_flux = mheats.create_fluxs.fake_slr_flux(alb, times[it], distance, period)
+        slr_flux = mheats.create_fluxs.fake_slr_flux(alb, times[it], distance, diurn_per)
         solver.temp = solver.implicit_scheme(dt, slr_flux)
         prof.temp = solver.temp
         solver.need_update = False

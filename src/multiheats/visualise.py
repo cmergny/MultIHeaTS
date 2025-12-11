@@ -18,7 +18,7 @@ def use_latex():
     plt.rcParams.update(tex_fonts)
 
 
-def plot_multi_temp(spaces, temps, n_curves=10):
+def plot_multi_temp(spaces, temps, n_curves=10, log=False):
     """Plot multiple temperature profiles chosen evenly among all times."""
     fig, ax = plt.subplots()
     nt = temps.shape[0]
@@ -26,13 +26,14 @@ def plot_multi_temp(spaces, temps, n_curves=10):
         ax.plot(spaces, temps[it], label=f"it = {it}")
     ax.set_xlabel("Depth (m)")
     ax.set_ylabel("Temperature (K)")
-    # ax.set_xscale("log")
+    if log:
+        ax.set_xscale("log")
     plt.title("Multiple Temperature Profiles")
     plt.legend()
     # plt.show()
 
 
-def plot_temp(spaces, temps, it, interf=0):
+def plot_temp(spaces, temps, it, interf=0, log=False):
     """Plot one temperature profile at one time."""
     mean_temp = temps[it].mean()
     fig, ax = plt.subplots()
@@ -40,17 +41,16 @@ def plot_temp(spaces, temps, it, interf=0):
     ax.plot(spaces, temps[it], linestyle="-", marker=".")
     ax.set_xlabel("Depth (m)")
     ax.set_ylabel("Temperature (K)")
-    ax.set_ylim(temps.min(), temps.max())
-    ax.set_xlim(0, spaces.max())
-    ax.set_xscale("symlog")
+    #ax.set_ylim(temps.min(), temps.max())
+    #ax.set_xlim(0, spaces.max())
+    if log:
+        ax.set_xscale("log")
     plt.title("Bilayer temperature profile snapshot")
     plt.legend()
     # plt.show()
 
 
-def animate_function(
-    spaces, temps, interf=0, step=1, frames=None, save=False, xscale="log"
-):
+def animate_function(spaces, temps, interf=0, step=1, frames=None, save=False, xscale="log"):
     """Plot an animation of the temperature with time"""
     frames = temps.shape[0] // step if frames is None else frames
     fig, ax = plt.subplots()
@@ -77,9 +77,7 @@ def animate_function(
     return anim
 
 
-def beautiful_animate_function(
-    spaces, temps, interf=0, step=1, frames=None, save=False
-):
+def beautiful_animate_function(spaces, temps, interf=0, step=1, frames=None, save=False):
     """Plot an animation of the temperature with time"""
     frames = temps.shape[0] // step if frames is None else frames
     fig, ax = plt.subplots(figsize=(5, 4.5))

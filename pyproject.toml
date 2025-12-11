@@ -21,6 +21,8 @@ scipy = "*"
 pandas = "*"
 tqdm = "*"
 xlrd = "*"
+astropy = "*"
+astroquery = "*"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "*"

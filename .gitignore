@@ -1,10 +1,12 @@
 figures/*
 data/*
 latex/*
+notebooks/*
 
 examples/*.png
 examples/example_2.py
 examples/import_data.py
+ephemerides/*.fits
 
 src/multiheats/profiling/*
 *.py.lprof
