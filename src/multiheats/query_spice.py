@@ -8,7 +8,7 @@ from astropy.units import UnitsWarning
 import multiheats.constants as cst
 
 
-def get_ephemerides(target=None, start=None, stop=None, dt=None, ephfilepath=None, write=True):
+def get_ephemerides(target=None, start=None, stop=None, dt=None, ephfilepath=None, write=True, write_dir="../../ephemerides/"):
     """
     From an observer, start, stop dates,
     Returns the ephemerides of the given target at each timestep.
@@ -19,7 +19,7 @@ def get_ephemerides(target=None, start=None, stop=None, dt=None, ephfilepath=Non
     if ephfilepath is None:
         print("Requesting JPL Horizons for ephemerides data...")
         timestep = f"{int(dt/60)}min"  # Horizons format
-        targetid = cst.NAIF_DIC[targetname]
+        targetid = cst.NAIF_DIC[target]
         obj = Horizons(
             id=targetid,
             location="@sun",  # Location refers to location of the observer
@@ -29,7 +29,7 @@ def get_ephemerides(target=None, start=None, stop=None, dt=None, ephfilepath=Non
 
         if write:
             filename = f"{target}_{start}_{stop}"
-            eph.write(f"../../ephemerides/{filename}.fits", format="fits")
+            eph.write(f"{write_dir}{filename}.fits", format="fits")
             print(f"Wrote SPICE data in {filename}.")
 
     # Or import from provided file
